@@ -50,12 +50,7 @@
                 <ComboBox Grid.Column="1" Grid.Row="3" ItemsSource="{Binding Path=DurationItems, Mode=OneWay}" SelectedValue="{Binding Path=Duration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Text" SelectedValuePath="Seconds" Style="{StaticResource ChartComboBox}" />
             </Grid>
         </Expander>
-        
-        <oxy:Plot x:Name="OPGraph" Margin="20,10,40,10">
-            <oxy:Plot.Axes>
-                <oxy:LogarithmicAxis Position="Left" MajorGridlineStyle="Solid" />
-                <oxy:DateTimeAxis Position="Bottom" StringFormat="T" Angle="45" />
-            </oxy:Plot.Axes>
-        </oxy:Plot>
+
+        <oxy:PlotView x:Name="OPGraph" Margin="20,10,40,10" />
     </DockPanel>
 </sty:FlatWindow>
