@@ -916,3 +916,258 @@ git commit -m "Rename project to Pulsebar (namespace, assembly, solution, app na
 ```
 
 (Use `git add -A` here, not a file list — this commit legitimately touches every file in the renamed tree via the folder move; a partial `git add` would split one atomic rename across commits.)
+
+---
+
+### Task 12: Load bars, severity color, section dots/divider, bigger clock
+
+**Why this task exists:** after Tasks 5-9 shipped, the user compared the running app against the "Modernized" mockup from the original feasibility assessment and correctly pointed out the visual gap is much bigger than those tasks closed — real Mica isn't available (Task 4), so the earlier tasks intentionally stayed conservative (a faint sheen, hover-only button treatment, small spacing/opacity nudges). This task pushes further: bars and severity color for every load/percentage metric (not just drives), a colored dot + divider on each section title, and a visually bigger clock — matching the mockup's actual visual weight, while still respecting the Global Constraints (`Monitoring.cs`/`SettingsModel.cs` untouched, existing `BGColor`/`FontColor`/etc. bindings untouched).
+
+**Deliberately not attempted here** (flagged to the user as optional follow-ups, not silently dropped): the mockup's RAM row shows a bar reflecting `RAMLoad`'s percentage underneath text that displays `RAMUsed` (a different metric, in GB) — cleanly wiring one metric's bar to a sibling metric's value is a real cross-metric binding problem, out of scope here. Temperature values in the mockup are also severity-colored on a °C-specific scale — this task's severity coloring only covers percentage (`Append == "%"`) metrics.
+
+**Files:**
+- Modify: `Pulsebar/Converters.cs` (new `LoadSeverityColorConverter` class)
+- Modify: `Pulsebar/App.xaml` (register the new converter as an Application resource, alongside the existing four)
+- Modify: `Pulsebar/FluentStyle.xaml` (new `SectionDot`, `ClockTime`, `MetricLoadBar` styles)
+- Modify: `Pulsebar/Sidebar.xaml` (the clock header block, the generic group-title block, the generic per-metric `iMetric` `DataTemplate`)
+
+**Interfaces:**
+- Consumes: `iMetric.Append` (string, already `"%"` for every percentage metric — confirmed via `Monitoring.cs`'s `DataType.GetAppend()`, `DataType.Percent => "%"`), `iMetric.nValue` (double, the normalized/converted value — already 0-100 for every percent metric).
+- Produces: `LoadSeverityColorConverter` (namespace `Pulsebar.Converters`) — a reusable `IValueConverter`, `double → SolidColorBrush`, usable by any later task that wants the same three-tier coloring.
+
+- [ ] **Step 1: Add the severity-color converter**
+
+In `Pulsebar/Converters.cs`, add (matching this file's existing 4-space-indent, plain-class style — do not use tabs, this file is the one exception in the codebase that uses spaces):
+
+```csharp
+    public class LoadSeverityColorConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush _low = MakeBrush("#3E8F4C");
+        private static readonly SolidColorBrush _medium = MakeBrush("#B4791E");
+        private static readonly SolidColorBrush _high = MakeBrush("#B23A2E");
+
+        private static SolidColorBrush MakeBrush(string hex)
+        {
+            SolidColorBrush _brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+            _brush.Freeze();
+            return _brush;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double _value = value is double ? (double)value : 0d;
+
+            if (_value >= 85d)
+            {
+                return _high;
+            }
+
+            if (_value >= 60d)
+            {
+                return _medium;
+            }
+
+            return _low;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
+```
+
+This needs `using System.Windows.Media;` added to the file's existing `using` block (it currently has `System`, `System.Globalization`, `System.Windows`, `System.Windows.Data`, `System.Windows.Input`, `Pulsebar.Windows` — add `System.Windows.Media` for `SolidColorBrush`/`Color`/`ColorConverter`).
+
+- [ ] **Step 2: Register the converter in App.xaml**
+
+In `Pulsebar/App.xaml`, find:
+
+```xml
+            <conv:MetricLabelConverter x:Key="MetricLabelConverter" />
+            <conv:BoolInverseConverter x:Key="BoolInverseConverter" />
+            <conv:PercentConverter x:Key="PercentConverter" />
+```
+
+Add a fourth line:
+
+```xml
+            <conv:MetricLabelConverter x:Key="MetricLabelConverter" />
+            <conv:BoolInverseConverter x:Key="BoolInverseConverter" />
+            <conv:PercentConverter x:Key="PercentConverter" />
+            <conv:LoadSeverityColorConverter x:Key="LoadSeverityColorConverter" />
+```
+
+(This follows the existing pattern — these four converters are all declared directly in `App.xaml`'s `Application.Resources`, not in `FluentStyle.xaml`. Every consumer of `LoadSeverityColorConverter` in this task lives in `Sidebar.xaml` or in a `Style` inside `FluentStyle.xaml` — for the `FluentStyle.xaml` case, recall the lesson from Task 3's crash fix: a `StaticResource` reference from *inside* a `Style` in `FluentStyle.xaml` cannot reach back into `App.xaml`. `MetricLoadBar`'s Foreground (Step 4 below) binds this converter from inside `FluentStyle.xaml` — so it must be declared *in* `FluentStyle.xaml`, not `App.xaml`. Register it in `App.xaml` only if you are certain nothing in `FluentStyle.xaml` needs it via `StaticResource`; given Step 4 does need it there, the correct placement is to add `<conv:LoadSeverityColorConverter x:Key="LoadSeverityColorConverter" />` to `Pulsebar/FluentStyle.xaml` instead, near its other top-level resources — and you will also need to add `xmlns:conv="clr-namespace:Pulsebar.Converters"` to `FluentStyle.xaml`'s root `ResourceDictionary` element, matching how `xmlns:conv` would look if declared there for the first time. Do NOT add it to both files — pick `FluentStyle.xaml`, since that is where it is actually consumed via `StaticResource`.)
+
+- [ ] **Step 3: Add the new FluentStyle.xaml styles**
+
+In `Pulsebar/FluentStyle.xaml`, add these three styles (placement: anywhere at the top level of the dictionary is fine; grouping them near `PanelSheen` is reasonable):
+
+```xml
+            <Style x:Key="SectionDot" TargetType="{x:Type Ellipse}">
+                <Setter Property="Width" Value="6" />
+                <Setter Property="Height" Value="6" />
+                <Setter Property="Fill" Value="#3FBBA4" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Margin" Value="0,0,8,0" />
+            </Style>
+
+            <Style x:Key="SectionDivider" TargetType="{x:Type Border}">
+                <Setter Property="Height" Value="1" />
+                <Setter Property="Background" Value="#1FFFFFFF" />
+                <Setter Property="Margin" Value="0,8,0,0" />
+            </Style>
+
+            <Style x:Key="ClockTime" TargetType="{x:Type Label}">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Foreground" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontColor, Mode=OneWay}" />
+                <Setter Property="FontSize" Value="30" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+
+            <Style x:Key="MetricLoadBar" TargetType="{x:Type ProgressBar}">
+                <Setter Property="Minimum" Value="0" />
+                <Setter Property="Maximum" Value="100" />
+                <Setter Property="Margin" Value="0,4,0,8" />
+                <Setter Property="Height" Value="4" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="Foreground" Value="{Binding Path=nValue, Mode=OneWay, Converter={StaticResource LoadSeverityColorConverter}}" />
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ProgressBar}">
+                            <Border Name="PART_Track" CornerRadius="2" Background="#20808080" BorderThickness="0">
+                                <Border Name="PART_Indicator" CornerRadius="2" Background="{TemplateBinding Foreground}" BorderThickness="0" HorizontalAlignment="Left" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Path=Append, Mode=OneWay}" Value="%">
+                        <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+```
+
+(`MetricLoadBar` mirrors `DriveProgress`'s proven `PART_Track`/`PART_Indicator` naming — WPF's `ProgressBar` control logic auto-sizes `PART_Indicator`'s width from `Value`/`Minimum`/`Maximum` when those names are used; no custom width-calculation converter is needed, matching how `DriveProgress` already works. `SectionDot`'s `#3FBBA4` teal and `LoadSeverityColorConverter`'s green/amber/red are fixed accent/semantic colors, not user-configurable — consistent with how `PanelSheen`'s gradient and `IconButton`'s hover colors were already fixed values in earlier tasks; only `FontColor`/`BGColor`/etc. need to stay bound to `Settings.Instance`.)
+
+- [ ] **Step 4: Wire the load bar and severity color into the generic metric row**
+
+In `Pulsebar/Sidebar.xaml`, find the generic `iMetric` `DataTemplate` (inside the `BaseMonitor` `DataTemplate`'s nested `ItemsControl`):
+
+```xml
+                                                            <DataTemplate DataType="{x:Type monitor:iMetric}">
+                                                                <DockPanel Style="{StaticResource MetricPanel}">
+                                                                    <TextBlock Text="{Binding Path=Label, Mode=OneWay, Converter={StaticResource MetricLabelConverter}}" Style="{StaticResource MetricLabel}" />
+                                                                    <TextBlock Text="{Binding Path=Text, Mode=OneWay}" Style="{StaticResource MetricValue}" />
+                                                                </DockPanel>
+                                                            </DataTemplate>
+```
+
+Replace with:
+
+```xml
+                                                            <DataTemplate DataType="{x:Type monitor:iMetric}">
+                                                                <StackPanel Style="{StaticResource VerticalPanel}">
+                                                                    <DockPanel Style="{StaticResource MetricPanel}">
+                                                                        <TextBlock Text="{Binding Path=Label, Mode=OneWay, Converter={StaticResource MetricLabelConverter}}" Style="{StaticResource MetricLabel}" />
+                                                                        <TextBlock Text="{Binding Path=Text, Mode=OneWay}" Style="{StaticResource MetricValue}">
+                                                                            <TextBlock.Style>
+                                                                                <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MetricValue}">
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding Path=Append, Mode=OneWay}" Value="%">
+                                                                                            <Setter Property="Foreground" Value="{Binding Path=nValue, Mode=OneWay, Converter={StaticResource LoadSeverityColorConverter}}" />
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </TextBlock.Style>
+                                                                        </TextBlock>
+                                                                    </DockPanel>
+                                                                    <ProgressBar Value="{Binding Path=nValue, Mode=OneWay}" Style="{StaticResource MetricLoadBar}" />
+                                                                </StackPanel>
+                                                            </DataTemplate>
+```
+
+(The existing `MetricValue` style already has its own `Style.Triggers` for `TextAlign`, from `App.xaml`'s original code — using `BasedOn="{StaticResource MetricValue}"` here means this inline style *adds* the severity-color trigger on top of, not instead of, whatever `MetricValue` already does. Do not copy `MetricValue`'s existing triggers into this new inline style; `BasedOn` already carries them.)
+
+**Important — this DataTemplate is scoped to `BaseMonitor`-derived monitors only** (CPU, GPU, RAM, Network, etc.) via the `ItemsControl.Resources` block it lives in. It does NOT affect `DriveMonitor`'s separate `DataTemplate` (drives keep their existing, unrelated `DriveProgress` bars, untouched by this task) — confirm this by checking that your edit stayed inside the `<DataTemplate DataType="{x:Type monitor:BaseMonitor}">` block and did not touch the sibling `<DataTemplate DataType="{x:Type monitor:DriveMonitor}">` block below it.
+
+- [ ] **Step 5: Add the section dot, divider, and bigger clock**
+
+In `Pulsebar/Sidebar.xaml`, the clock header block currently reads:
+
+```xml
+                                                <StackPanel Style="{StaticResource GroupPanel}">
+                                                    <StackPanel Style="{StaticResource MonitorTitle}">
+                                                        <Path Style="{StaticResource AppIcon}" Data="M256,0C114.625,...z"></Path>
+                                                        <Label Content="{x:Static frame:Resources.Time}" Style="{StaticResource AppTitle}" />
+                                                    </StackPanel>
+                                                    
+                                                    <StackPanel Style="{StaticResource MonitorPanel}">
+                                                        <Label Content="{Binding Path=Time, Mode=OneWay}" Style="{StaticResource AppTitle}" />
+```
+
+(`M256,0C114.625,...z` stands in for the actual long path data string already in the file — don't retype it, just locate this block by structure.)
+
+Change to:
+
+```xml
+                                                <StackPanel Style="{StaticResource GroupPanel}">
+                                                    <StackPanel Style="{StaticResource MonitorTitle}">
+                                                        <Ellipse Style="{StaticResource SectionDot}" />
+                                                        <Path Style="{StaticResource AppIcon}" Data="M256,0C114.625,...z"></Path>
+                                                        <Label Content="{x:Static frame:Resources.Time}" Style="{StaticResource AppTitle}" />
+                                                    </StackPanel>
+                                                    <Border Style="{StaticResource SectionDivider}" />
+                                                    
+                                                    <StackPanel Style="{StaticResource MonitorPanel}">
+                                                        <Label Content="{Binding Path=Time, Mode=OneWay}" Style="{StaticResource ClockTime}" />
+```
+
+(Two changes: an `Ellipse` added as the first child of the title `StackPanel`, a `Border` divider added as a new sibling right after that `StackPanel` closes, and the clock's own `Label` switched from `Style="{StaticResource AppTitle}"` to `Style="{StaticResource ClockTime}"` — the `Date` `TextBlock` below it, using `AppText`, is unchanged.)
+
+Then find the generic group-title block (used for every hardware group — CPU, GPU, RAM, etc.):
+
+```xml
+                                <StackPanel Style="{StaticResource GroupPanel}">
+                                    <StackPanel Style="{StaticResource MonitorTitle}">
+                                        <Path Data="{Binding Path=IconPath, Mode=OneWay}" Style="{StaticResource AppIcon}" />
+                                        <Label Content="{Binding Path=Title, Mode=OneWay}" Style="{StaticResource AppTitle}" />
+                                    </StackPanel>
+                                    
+                                    <ItemsControl ItemsSource="{Binding Path=Monitors, Mode=OneWay}">
+```
+
+Change to:
+
+```xml
+                                <StackPanel Style="{StaticResource GroupPanel}">
+                                    <StackPanel Style="{StaticResource MonitorTitle}">
+                                        <Ellipse Style="{StaticResource SectionDot}" />
+                                        <Path Data="{Binding Path=IconPath, Mode=OneWay}" Style="{StaticResource AppIcon}" />
+                                        <Label Content="{Binding Path=Title, Mode=OneWay}" Style="{StaticResource AppTitle}" />
+                                    </StackPanel>
+                                    <Border Style="{StaticResource SectionDivider}" />
+                                    
+                                    <ItemsControl ItemsSource="{Binding Path=Monitors, Mode=OneWay}">
+```
+
+- [ ] **Step 6: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`.
+
+- [ ] **Step 7: Run and screenshot**
+
+Since this environment cannot launch the app itself (known sandbox/elevation limitation, established earlier in this session), this step is done by the controller with the human user's help: launch the exe, screenshot the docked panel with real sensor data populated (CPU/GPU/RAM load rows should now show a colored pill bar under the label/value line and a colored percentage value; each section title should show a small teal dot before its icon and a faint divider line beneath it; the clock digits should read noticeably larger/bolder than before).
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add Pulsebar/Converters.cs Pulsebar/App.xaml Pulsebar/FluentStyle.xaml Pulsebar/Sidebar.xaml
+git commit -m "Add load bars, severity color, section dots/divider, and a bigger clock"
+```
