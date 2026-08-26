@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using Pulsebar.Windows;
 
 namespace Pulsebar.Converters
@@ -93,6 +94,42 @@ namespace Pulsebar.Converters
             string _value = (string)value;
 
             return string.Format("{0}:", _value);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
+
+    public class LoadSeverityColorConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush _low = MakeBrush("#3E8F4C");
+        private static readonly SolidColorBrush _medium = MakeBrush("#B4791E");
+        private static readonly SolidColorBrush _high = MakeBrush("#B23A2E");
+
+        private static SolidColorBrush MakeBrush(string hex)
+        {
+            SolidColorBrush _brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+            _brush.Freeze();
+            return _brush;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double _value = value is double ? (double)value : 0d;
+
+            if (_value >= 85d)
+            {
+                return _high;
+            }
+
+            if (_value >= 60d)
+            {
+                return _medium;
+            }
+
+            return _low;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
