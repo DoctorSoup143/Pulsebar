@@ -82,9 +82,9 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type style:FlatWindow}">
-                    <Border x:Name="PART_BORDER" Margin="10" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5">
+                    <Border x:Name="PART_BORDER" Margin="14" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
                         <Border.Effect>
-                            <DropShadowEffect BlurRadius="10" Direction="-90" ShadowDepth="2" Opacity="0.5" Color="#333333" />
+                            <DropShadowEffect BlurRadius="24" Direction="-90" ShadowDepth="4" Opacity="0.25" Color="#1A1A1A" />
                         </Border.Effect>
                         <Grid>
                             <DockPanel LastChildFill="True">
