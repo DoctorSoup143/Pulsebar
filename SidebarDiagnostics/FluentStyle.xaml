@@ -4,8 +4,11 @@
         xmlns:style="clr-namespace:SidebarDiagnostics.Style"
         xmlns:frame="clr-namespace:SidebarDiagnostics.Framework"
         xmlns:win="clr-namespace:SidebarDiagnostics.Windows"
+        xmlns:conv="clr-namespace:SidebarDiagnostics.Converters"
         x:Class="SidebarDiagnostics.Style.FluentStyle"
         x:ClassModifier="public">
+
+            <conv:FontToSpaceConverter x:Key="FontToSpaceConverter" />
 
             <Style x:Key="SidebarWindow" TargetType="{x:Type win:AppBarWindow}">
                 <Setter Property="Title" Value="{x:Static frame:Resources.Sidebar}" />

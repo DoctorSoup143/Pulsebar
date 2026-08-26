@@ -39,7 +39,6 @@
             </tb:TaskbarIcon>
 
             <conv:MetricLabelConverter x:Key="MetricLabelConverter" />
-            <conv:FontToSpaceConverter x:Key="FontToSpaceConverter" />
             <conv:BoolInverseConverter x:Key="BoolInverseConverter" />
             <conv:PercentConverter x:Key="PercentConverter" />
 
