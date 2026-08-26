@@ -301,6 +301,19 @@
                 </Setter>
             </Style>
 
+            <Style x:Key="PanelSheen" TargetType="{x:Type Border}">
+                <Setter Property="IsHitTestVisible" Value="False" />
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Offset="0.0" Color="#14FFFFFF" />
+                            <GradientStop Offset="0.35" Color="#00FFFFFF" />
+                            <GradientStop Offset="1.0" Color="#00000000" />
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <Style x:Key="ContentView" TargetType="ScrollViewer">
                 <Setter Property="Margin" Value="5,15" />
                 <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
