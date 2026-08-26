@@ -760,3 +760,159 @@ In `Pulsebar/Project Overview.md`: change "Styling is still the original flat/ha
 git add docs/superpowers/specs/2026-08-26-pulsebar-reskin-design.md
 git commit -m "Update reskin spec to reflect completed Phase 1"
 ```
+
+---
+
+### Task 11: Rename the project to Pulsebar
+
+**Execution order note:** added mid-plan at the user's request, after Task 4's code change landed. Dispatch this task right after Task 4 completes and before Task 5, so the remaining styling tasks (5-10) are authored against the new name instead of needing a second pass. This is a full rename: namespace, assembly, solution/project files, the project folder, and the user-visible app name — everything except the items explicitly excluded below.
+
+**Files:**
+- Rename: `SidebarDiagnostics.sln` → `Pulsebar.sln`
+- Rename: `SidebarDiagnostics/` (folder) → `Pulsebar/`
+- Rename: `SidebarDiagnostics/SidebarDiagnostics.csproj` → `Pulsebar/Pulsebar.csproj`
+- Rename: `SidebarDiagnostics/SidebarDiagnostics.csproj.user` → `Pulsebar/Pulsebar.csproj.user` (if present)
+- Modify: every `.cs` and `.xaml`/`.xaml.cs` file under the renamed folder that declares or references the `SidebarDiagnostics` namespace (33 files, confirmed by `grep -rl "namespace SidebarDiagnostics\|clr-namespace:SidebarDiagnostics\|x:Class=\"SidebarDiagnostics" SidebarDiagnostics/`)
+- Modify: `Pulsebar/Properties/AssemblyInfo.cs`, `Pulsebar/Properties/app.manifest`, `Pulsebar/Properties/Resources.Designer.cs`
+- Modify: all 14 `Pulsebar/Properties/Resources*.resx` files (one display-name string each)
+- Modify: `Pulsebar/Constants.cs` (`TASKNAME`)
+- Do NOT modify: `Pulsebar/App.config`'s `RepoURL`/`WikiURL`/`DonateURL`/`CurrentReleaseURL`/`LegacyReleaseURL` — these point at the original upstream project's GitHub repo, S3 update bucket, and author's PayPal. They are not this project's naming; changing them would silently redirect update checks and links to infrastructure this project doesn't own. Leave the values exactly as they are.
+- Do NOT rename: icon files (`Sidebar.ico`, `Settings.ico`) or any asset filenames — out of scope, the user asked to rename the project, not re-brand its assets.
+- Do NOT touch: the git remote / GitHub repository name, or anything outside this working tree.
+
+**Interfaces:**
+- Consumes: nothing from earlier tasks beyond the current state of the tree after Task 4 (commit `47801ba`).
+- Produces: every later task's file paths change from `SidebarDiagnostics/X` to `Pulsebar/X`, and `dotnet build` must be run against `Pulsebar.sln` (not `SidebarDiagnostics.sln`) from here on. Note this loudly in the report so the controller updates its own build commands for Tasks 5-10.
+
+- [ ] **Step 1: Rename the folder and project/solution files**
+
+```bash
+git mv SidebarDiagnostics.sln Pulsebar.sln
+git mv SidebarDiagnostics Pulsebar
+git mv Pulsebar/SidebarDiagnostics.csproj Pulsebar/Pulsebar.csproj
+```
+
+(If `SidebarDiagnostics.csproj.user` exists, `git mv` it the same way; it's a local/untracked VS file in some setups — check with `git ls-files` first, and skip if it isn't tracked.)
+
+- [ ] **Step 2: Fix the solution file's project reference**
+
+In `Pulsebar.sln`, the line `Project("{...}") = "SidebarDiagnostics", "SidebarDiagnostics\SidebarDiagnostics.csproj", "{...}"` needs both the display name and the path updated:
+
+```
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pulsebar", "Pulsebar\Pulsebar.csproj", "{A1174319-5065-453E-9864-9E7108419DDA}"
+```
+
+Keep the GUID (`{A1174319-...}`) exactly as it was — only the display name and path change.
+
+- [ ] **Step 3: Update the csproj**
+
+In `Pulsebar/Pulsebar.csproj`, update:
+
+```xml
+		<RootNamespace>SidebarDiagnostics</RootNamespace>
+		<AssemblyName>SidebarDiagnostics</AssemblyName>
+```
+
+to:
+
+```xml
+		<RootNamespace>Pulsebar</RootNamespace>
+		<AssemblyName>Pulsebar</AssemblyName>
+```
+
+and:
+
+```xml
+		<StartupObject>SidebarDiagnostics.App</StartupObject>
+```
+
+to:
+
+```xml
+		<StartupObject>Pulsebar.App</StartupObject>
+```
+
+- [ ] **Step 4: Rename the namespace across every source file**
+
+Every `.cs` file declares `namespace SidebarDiagnostics` or a sub-namespace (`SidebarDiagnostics.Style`, `SidebarDiagnostics.Windows`, `SidebarDiagnostics.Monitoring`, `SidebarDiagnostics.Framework`, `SidebarDiagnostics.Commands`, `SidebarDiagnostics.Converters`). Every `.xaml` file has one or more `xmlns:*="clr-namespace:SidebarDiagnostics..."` declarations and/or an `x:Class="SidebarDiagnostics...."` attribute. Replace the leading `SidebarDiagnostics` segment with `Pulsebar` everywhere it appears as a namespace/clr-namespace/x:Class prefix — i.e. `SidebarDiagnostics` → `Pulsebar` and `SidebarDiagnostics.Style` → `Pulsebar.Style`, etc. A safe mechanical approach: replace the literal token `SidebarDiagnostics` with `Pulsebar` wherever it is followed by `.` or `"` or whitespace or end-of-identifier in `.cs`/`.xaml` files (this covers `namespace SidebarDiagnostics`, `namespace SidebarDiagnostics.Style`, `using SidebarDiagnostics...`, `clr-namespace:SidebarDiagnostics...`, `x:Class="SidebarDiagnostics...`, and any `SidebarDiagnostics.Foo.Bar` fully-qualified reference) — but do NOT touch the string literal `"Sidebar Diagnostics"` (with a space — that's the display name, handled separately in Step 5) or URLs containing `sidebar-diagnostics` (Step skip list above).
+
+Also fix `Pulsebar/Properties/Resources.Designer.cs:42`, which has the namespace as a runtime string, not just a C# namespace:
+
+```csharp
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SidebarDiagnostics.Properties.Resources", typeof(Resources).Assembly);
+```
+
+→
+
+```csharp
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Pulsebar.Properties.Resources", typeof(Resources).Assembly);
+```
+
+This one is load-bearing — .NET's satellite-resource lookup uses this string at runtime to find the compiled `.resources` blob, and it must match the assembly's actual root namespace + resource file path (`Pulsebar.Properties.Resources`) or every `Resources.*` lookup (including `frame:Resources.Sidebar`, used as the window title) throws at runtime instead of failing to build. Since there's no test project, this can only be caught by actually running the app — flag it clearly in your report so the controller verifies it during the manual launch.
+
+- [ ] **Step 5: Update the user-visible app name**
+
+In `Pulsebar/Properties/AssemblyInfo.cs`:
+
+```csharp
+[assembly: AssemblyTitle("Sidebar Diagnostics")]
+[assembly: AssemblyDescription("Sidebar Diagnostics")]
+[assembly: AssemblyCompany("Sidebar Diagnostics")]
+[assembly: AssemblyProduct("Sidebar Diagnostics")]
+```
+
+→
+
+```csharp
+[assembly: AssemblyTitle("Pulsebar")]
+[assembly: AssemblyDescription("Pulsebar")]
+[assembly: AssemblyCompany("Pulsebar")]
+[assembly: AssemblyProduct("Pulsebar")]
+```
+
+In `Pulsebar/Properties/app.manifest`, change:
+
+```xml
+  <assemblyIdentity version="1.0.0.0" name="SidebarDiagnostics" />
+```
+
+to:
+
+```xml
+  <assemblyIdentity version="1.0.0.0" name="Pulsebar" />
+```
+
+In every `Pulsebar/Properties/Resources*.resx` file (all 14: `Resources.resx`, `Resources.ar.resx`, `Resources.da.resx`, `Resources.de.resx`, `Resources.de-CH.resx`, `Resources.es.resx`, `Resources.fi.resx`, `Resources.fr.resx`, `Resources.it.resx`, `Resources.ja.resx`, `Resources.nl.resx`, `Resources.ru.resx`, `Resources.tr.resx`, `Resources.zh.resx`), find the `<value>Sidebar Diagnostics</value>` entry (this is the localized app-name resource, e.g. `Resources.resx:120`) and change it to `<value>Pulsebar</value>` in every file, regardless of that file's language — "Pulsebar" is a product name, not translated text, matching how the design spec treated the name decision. Leave every other value in these files untouched (e.g. `Resources.de-CH.resx:985`'s update-notification sentence that happens to contain "Sidebar Diagnostics" as running German text — update just the product-name mention, not unrelated translated sentences, unless that sentence's only content is the product name being restated).
+
+In `Pulsebar/Constants.cs`:
+
+```csharp
+            public const string TASKNAME = "SidebarStartup";
+```
+
+→
+
+```csharp
+            public const string TASKNAME = "PulsebarStartup";
+```
+
+(This is the Windows Task Scheduler entry name used for the "run at startup" feature — internal identifier only, safe to rename, but note in your report that a user upgrading from an old build with an existing `SidebarStartup` scheduled task will end up with two entries until they re-save that setting. That's expected for a rename and not something to fix in this task.)
+
+- [ ] **Step 6: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`. (The solution file is now named `Pulsebar.sln`, not `SidebarDiagnostics.sln` — this is the new build command for every task from here on.)
+
+- [ ] **Step 7: Grep for stragglers**
+
+Run: `grep -rn "SidebarDiagnostics" --include=*.cs --include=*.xaml --include=*.csproj --include=*.sln .` from the repo root of this worktree.
+Expected: no matches inside the renamed project tree. (Matches inside `docs/superpowers/` referring to the *old* app name in historical spec/plan prose are fine and expected — those documents describe the project's history and are not renamed by this task.)
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add -A
+git commit -m "Rename project to Pulsebar (namespace, assembly, solution, app name)"
+```
+
+(Use `git add -A` here, not a file list — this commit legitimately touches every file in the renamed tree via the folder move; a partial `git add` would split one atomic rename across commits.)

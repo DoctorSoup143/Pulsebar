@@ -15,12 +15,9 @@ Replace the app's current flat, hard-edged panel styling with a Windows 11 Fluen
 
 This is the one part of the plan that needs to be validated early, before styling work goes further.
 
-The current `AppBarWindow` (`App.xaml:56`, `Sidebar.xaml`) sets `AllowsTransparency="True"` with `WindowStyle="None"` to get a borderless, alpha-blended panel. True DWM Mica/acrylic backdrops (`WPF-UI`'s `WindowBackdrop.ApplyBackdrop`) are applied via a Win32 call on the window handle (`DWMWA_SYSTEMBACKDROP_TYPE`) and require DWM composition on that window — which a layered (`AllowsTransparency=True`) window does not participate in. In practice this means one of two things will happen, and we don't know which until we try it on this specific `AppBarWindow` subclass:
+The `AppBarWindow` (`Sidebar.xaml`, styled via `SidebarWindow` in `FluentStyle.xaml`) sets `AllowsTransparency="True"` with `WindowStyle="None"` to get a borderless, alpha-blended panel. True DWM Mica/acrylic backdrops (`WPF-UI`'s `WindowBackdrop.ApplyBackdrop`) are applied via a Win32 call on the window handle (`DWMWA_SYSTEMBACKDROP_TYPE`) and require DWM composition on that window — which a layered (`AllowsTransparency=True`) window does not participate in.
 
-- **A.** `AllowsTransparency` has to come off, and the window's background/click-through behavior gets rebuilt on top of WPF-UI's own transparency handling (this is what WPF-UI's own demo windows do).
-- **B.** True Mica isn't achievable on this window shape at all, and the fallback is a semi-transparent acrylic-style `SolidColorBrush`/`AcrylicPanel` drawn in WPF (no real desktop blur, just a tinted translucent panel) — visually close, no Win32 dependency.
-
-**Plan:** spend the first work session as a spike — get *a* WPF-UI Mica backdrop rendering on the actual docked `AppBarWindow`, not a throwaway test window. If (A) works cleanly, proceed with it. If it fights the AppBar/docking logic, fall back to (B) and note it in the changelog as a deliberate choice, not a compromise discovered late.
+**Resolved, confirmed on the real docked window:** option **B**. `WindowBackdrop.ApplyBackdrop(this, WindowBackdropType.Mica)` was added to `Sidebar.xaml.cs`'s `Window_Loaded`, guarded by `WindowBackdrop.IsSupported`. A user-run launch of the built app showed no visible translucency or desktop blur behind the panel — a flat solid background, as expected given `AllowsTransparency="True"`. The call is harmless (guarded, no-op-safe) and stays in place, but the actual "Fluent" feel comes from the simulated-translucency sheen (see Approach below), not real DWM compositing. Removing `AllowsTransparency` to chase true Mica was not attempted — it would mean rebuilding the window's background/click-through handling on top of WPF-UI's own transparency model, which is more restructuring than this phase's budget for a cosmetic win.
 
 ## Approach
 
