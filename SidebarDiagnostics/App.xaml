@@ -13,6 +13,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="FlatStyle.xaml" />
+                <ResourceDictionary Source="FluentStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <command:ActivateCommand x:Key="ShowCommand" />
