@@ -57,6 +57,7 @@
 		<PackageReference Include="Splat.Core" Version="19.3.1" />
 		<PackageReference Include="Splat.Logging" Version="19.3.1" />
 		<PackageReference Include="System.Reactive" Version="6.1.0" />
+		<PackageReference Include="WPF-UI" Version="4.3.0" />
 	</ItemGroup>
 
 </Project>
