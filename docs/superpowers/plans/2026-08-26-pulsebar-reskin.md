@@ -1290,3 +1290,117 @@ Controller + human user step, same as prior tasks: launch the exe, screenshot th
 git add Pulsebar/Settings.cs Pulsebar/FluentStyle.xaml
 git commit -m "Widen the default panel and deepen the default background tint"
 ```
+
+---
+
+### Task 14: Tighten top spacing, match icon size to text, bold titles, real transparency
+
+**Why this task exists:** further user feedback after Task 13's screenshot. Three fixable items and one hard technical limit to be explicit about rather than silently fall short of again:
+
+1. Too much empty space above the clock.
+2. The section-title icons are visibly bigger than the section-title text (`AppIcon` binds to `FontSetting.IconSize` = 24px at the default font size; `AppTitle` binds to `FontSetting.TitleFontSize` = 16px at the same default — a real, measurable mismatch, not a subjective one).
+3. The background still doesn't read as "semi-transparent" — Task 13 actually moved `BGOpacity` *up* (0.85 → 0.92), which was the wrong direction for this ask; a higher opacity is more opaque, not more transparent.
+4. **The background will never look "blurry"** — Task 4 already established that real DWM Mica/acrylic blur does not render on this window because it sets `AllowsTransparency="True"`, and removing that would require rebuilding the window's transparency/click-through handling from scratch (out of budget, per Task 4's spec update). What genuinely is available is real alpha transparency — the window already composites with per-pixel alpha via `AllowsTransparency`, this part isn't blocked, only the Gaussian-blur part is. This task pushes transparency further; it does not add blur, because blur isn't achievable here.
+
+**Files:**
+- Modify: `Pulsebar/FluentStyle.xaml` (`ContentView`, `AppIcon`, `AppTitle`)
+- Modify: `Pulsebar/Settings.cs` (`_bgOpacity` default)
+
+**Interfaces:** none new — pure value/binding changes to existing styles and one existing field default.
+
+- [ ] **Step 1: Reduce the top margin above the content**
+
+In `Pulsebar/FluentStyle.xaml`, find `ContentView`:
+
+```xml
+            <Style x:Key="ContentView" TargetType="ScrollViewer">
+                <Setter Property="Margin" Value="5,15" />
+```
+
+Change the `Margin` to `5,6` (keeps the 5px horizontal margin, reduces the top/bottom margin from 15 to 6):
+
+```xml
+            <Style x:Key="ContentView" TargetType="ScrollViewer">
+                <Setter Property="Margin" Value="5,6" />
+```
+
+- [ ] **Step 2: Shrink section icons to match title text size**
+
+In `Pulsebar/FluentStyle.xaml`, find `AppIcon`:
+
+```xml
+            <Style x:Key="AppIcon" TargetType="{x:Type Path}">
+                <Setter Property="Width" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontSetting.IconSize, Mode=OneWay}" />
+                <Setter Property="Height" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontSetting.IconSize, Mode=OneWay}" />
+```
+
+Change both bindings' `Path` from `FontSetting.IconSize` to `FontSetting.TitleFontSize` — this makes the icon's pixel size track the title text's pixel size directly (both already scale together off the same user `FontSize` setting, so this stays proportional if the user changes their font size in Settings, it just removes the icon's separate up-scaling):
+
+```xml
+            <Style x:Key="AppIcon" TargetType="{x:Type Path}">
+                <Setter Property="Width" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontSetting.TitleFontSize, Mode=OneWay}" />
+                <Setter Property="Height" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontSetting.TitleFontSize, Mode=OneWay}" />
+```
+
+Confirmed safe to change here (not in `Settings.cs`'s shared `FontSetting.IconSize` computed property, which other windows may still use): `AppIcon` is only referenced from `Pulsebar/Sidebar.xaml` (verified via `grep -rn "StaticResource AppIcon}" Pulsebar/*.xaml` — every match is in `Sidebar.xaml`). Re-verify this yourself before editing, in case it's changed since this brief was written.
+
+- [ ] **Step 3: Bold the section titles**
+
+In `Pulsebar/FluentStyle.xaml`, find `AppTitle`:
+
+```xml
+            <Style x:Key="AppTitle" TargetType="{x:Type Label}">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Foreground" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontColor, Mode=OneWay}" />
+                <Setter Property="FontSize" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontSetting.TitleFontSize, Mode=OneWay}" />
+            </Style>
+```
+
+Add one setter, `FontWeight="Bold"`:
+
+```xml
+            <Style x:Key="AppTitle" TargetType="{x:Type Label}">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Foreground" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontColor, Mode=OneWay}" />
+                <Setter Property="FontSize" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontSetting.TitleFontSize, Mode=OneWay}" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+```
+
+Same scoping check as Step 2 applies here — confirmed only used in `Sidebar.xaml` (machine-name header, clock label, and every group title).
+
+- [ ] **Step 4: Increase real transparency (not blur — see the note at the top of this task)**
+
+In `Pulsebar/Settings.cs`, find:
+
+```csharp
+        private double _bgOpacity { get; set; } = 0.92d;
+```
+
+Change to:
+
+```csharp
+        private double _bgOpacity { get; set; } = 0.72d;
+```
+
+(Task 13 raised this from 0.85 to 0.92 to compensate for the *color* looking flat — but the color fix was `BGColor`, not opacity; raising opacity was the wrong lever for that problem and directly works against this task's actual ask. 0.72 is a genuine step toward "see-through," not just a smaller number than before — confirm it isn't so low that text legibility suffers against a bright desktop background if you're able to check, but do not attempt to launch the app yourself; note this as something for the controller/user to judge when they screenshot it.)
+
+- [ ] **Step 5: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`.
+
+- [ ] **Step 6: Run and screenshot**
+
+Controller + human user step, same as prior tasks. This step also requires the controller to update the live `%LocalAppData%\Pulsebar\settings.json`'s `BGOpacity` value to match Step 4 (same reasoning as Task 13's Step 4 — a saved settings file always wins over a code default, and the controller already has a copy of this file from Task 13). Not part of this task's own commit.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add Pulsebar/FluentStyle.xaml Pulsebar/Settings.cs
+git commit -m "Tighten top spacing, match icon size to title text, bold titles, real transparency"
+```
