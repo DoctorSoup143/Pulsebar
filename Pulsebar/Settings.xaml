@@ -18,7 +18,7 @@
         Closed="Window_Closed"
         Title="{x:Static frame:Resources.SettingsTitle}"
         Icon="Settings.ico"
-        Width="420"
+        Width="560"
         SizeToContent="Height"
         ShowMaximize="False"
         WindowStartupLocation="CenterScreen"
