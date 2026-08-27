@@ -99,7 +99,7 @@
                                                     </StackPanel>
                                                     <Border Style="{StaticResource SectionDivider}" />
 
-                                                    <StackPanel Style="{StaticResource MonitorPanel}">
+                                                    <StackPanel Style="{StaticResource MonitorPanel}" Margin="0">
                                                         <Label Content="{Binding Path=Time, Mode=OneWay}" Style="{StaticResource ClockTime}" />
                                                         <ContentControl>
                                                             <ContentControl.Style>
