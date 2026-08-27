@@ -397,7 +397,7 @@ namespace Pulsebar.Framework
             }
         }
 
-        private string _bgColor { get; set; } = "#2A3A52";
+        private string _bgColor { get; set; } = "#151C2E";
 
         [JsonProperty]
         public string BGColor
@@ -414,7 +414,7 @@ namespace Pulsebar.Framework
             }
         }
 
-        private double _bgOpacity { get; set; } = 0.72d;
+        private double _bgOpacity { get; set; } = 0.90d;
 
         [JsonProperty]
         public double BGOpacity
