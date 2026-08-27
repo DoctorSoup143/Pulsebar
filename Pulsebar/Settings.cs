@@ -414,7 +414,7 @@ namespace Pulsebar.Framework
             }
         }
 
-        private double _bgOpacity { get; set; } = 0.92d;
+        private double _bgOpacity { get; set; } = 0.72d;
 
         [JsonProperty]
         public double BGOpacity
