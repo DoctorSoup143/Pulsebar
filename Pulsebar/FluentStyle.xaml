@@ -208,7 +208,7 @@
                 <Setter Property="Minimum" Value="0" />
                 <Setter Property="Maximum" Value="100" />
                 <Setter Property="Margin" Value="0,4" />
-                <Setter Property="Height" Value="9" />
+                <Setter Property="Height" Value="4" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="Foreground" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontColor, Mode=OneWay}" />
                 <Setter Property="Background" Value="Transparent" />

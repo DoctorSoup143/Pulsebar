@@ -363,7 +363,7 @@ namespace Pulsebar.Framework
             }
         }
 
-        private int _sidebarWidth { get; set; } = 260;
+        private int _sidebarWidth { get; set; } = 247;
 
         [JsonProperty]
         public int SidebarWidth
