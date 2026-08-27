@@ -226,9 +226,10 @@
                                             </ToggleButton>
                                         </DockPanel>
 
-                                        <StackPanel Visibility="Collapsed">
+                                        <StackPanel>
                                             <StackPanel.Style>
                                                 <Style TargetType="{x:Type StackPanel}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsChecked, ElementName=CardExpand}" Value="True">
                                                             <Setter Property="Visibility" Value="Visible" />
