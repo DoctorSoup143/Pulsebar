@@ -127,7 +127,7 @@ namespace Pulsebar.Utilities
 
                 ExecAction _action = _task.Definition.Actions.OfType<ExecAction>().FirstOrDefault();
 
-                if (_action == null || _action.Path != Assembly.GetExecutingAssembly().Location)
+                if (_action == null || _action.Path != CurrentExePath)
                 {
                     return false;
                 }
@@ -135,6 +135,13 @@ namespace Pulsebar.Utilities
                 return true;
             }
         }
+
+        // Assembly.GetExecutingAssembly().Location always returns an empty string for
+        // assemblies embedded in a self-contained single-file publish (the only kind of
+        // build the official installer produces), which left the scheduled task's action
+        // pointing at nothing. Environment.ProcessPath resolves the real host executable
+        // path in both single-file and normal (framework-dependent) builds.
+        private static string CurrentExePath => Environment.ProcessPath ?? Process.GetCurrentProcess().MainModule.FileName;
 
         public static void EnableStartupTask(string exePath = null)
         {
@@ -144,7 +151,7 @@ namespace Pulsebar.Utilities
                 {
                     TaskDefinition _def = _taskService.NewTask();
                     _def.Triggers.Add(new LogonTrigger() { Enabled = true });
-                    _def.Actions.Add(new ExecAction(exePath ?? Assembly.GetExecutingAssembly().Location));
+                    _def.Actions.Add(new ExecAction(exePath ?? CurrentExePath));
                     _def.Principal.RunLevel = TaskRunLevel.Highest;
 
                     _def.Settings.DisallowStartIfOnBatteries = false;
