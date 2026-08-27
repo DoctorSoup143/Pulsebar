@@ -1171,3 +1171,122 @@ Since this environment cannot launch the app itself (known sandbox/elevation lim
 git add Pulsebar/Converters.cs Pulsebar/App.xaml Pulsebar/FluentStyle.xaml Pulsebar/Sidebar.xaml
 git commit -m "Add load bars, severity color, section dots/divider, and a bigger clock"
 ```
+
+---
+
+### Task 13: Wider panel and a real background tint (default values, not hardcoded)
+
+**Why this task exists:** after Task 12, the user reported two things: the panel background still reads as flat black/grey instead of the moody dark-navy tone from the mockup, and the clock ("7:56:25 PM", with seconds) visibly clips at the right edge of the panel. Investigation found the cause of both: `Pulsebar/Settings.cs` (the persisted app-settings class — **not** `SettingsModel.cs`, which stays off-limits per the Global Constraints; `Settings.cs` is the data class, `SettingsModel.cs` is the Settings-window view-model, and only the latter is excluded) has hardcoded field defaults of `SidebarWidth = 180`, `BGColor = "#000000"`, `BGOpacity = 0.85`. 180px was never enough room for the larger `ClockTime` style Task 12 introduced. Pure black at 85% opacity is what's actually rendering as "flat grey" — there was never a navy tint to begin with.
+
+This task changes the *defaults* those fields fall back to — not a hardcoded override of the binding. The settings remain exactly as user-configurable as before (still editable from the Settings window, still serialized to `settings.json`, still respected by every existing binding) — this only changes what a fresh install (or a reset) starts from.
+
+**Files:**
+- Modify: `Pulsebar/Settings.cs` (three default values)
+- Modify: `Pulsebar/FluentStyle.xaml` (`ClockTime` font size, `PanelSheen` gradient strength)
+
+**Interfaces:**
+- Consumes: nothing new.
+- Produces: nothing new — pure value changes to existing, already-bound properties.
+
+- [ ] **Step 1: Widen the default panel and deepen the default tint**
+
+In `Pulsebar/Settings.cs`, find these three field declarations (they are not adjacent in the file — `SidebarWidth` is near line 366, `BGColor`/`BGOpacity` near line 400):
+
+```csharp
+        private int _sidebarWidth { get; set; } = 180;
+```
+
+```csharp
+        private string _bgColor { get; set; } = "#000000";
+```
+
+```csharp
+        private double _bgOpacity { get; set; } = 0.85d;
+```
+
+Change to:
+
+```csharp
+        private int _sidebarWidth { get; set; } = 260;
+```
+
+```csharp
+        private string _bgColor { get; set; } = "#1D242C";
+```
+
+```csharp
+        private double _bgOpacity { get; set; } = 0.92d;
+```
+
+(`#1D242C` is a cool dark navy-slate — the same family of tone as the mockup's panel gradient, `rgb(32,38,44)` to `rgb(24,29,34)`, picked as a single flat value since we don't have a gradient brush bound to `BGColor` — just a deliberately-chosen dark navy instead of pure black. `0.92` opacity reads as a richer, more solid panel than `0.85`, which matters more without true blur behind it — a more transparent flat color just shows more of whatever's on the desktop, which looks messier, not more "Mica-like," when the blur itself isn't real.)
+
+- [ ] **Step 2: Defend the clock against clipping regardless of width, and strengthen the sheen**
+
+In `Pulsebar/FluentStyle.xaml`, find the `ClockTime` style added in Task 12:
+
+```xml
+            <Style x:Key="ClockTime" TargetType="{x:Type Label}">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Foreground" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontColor, Mode=OneWay}" />
+                <Setter Property="FontSize" Value="30" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+```
+
+Change `FontSize` from `30` to `26` (still visibly larger/bolder than the original `AppTitle`-based clock, but with more margin before it clips at the new 260px width — the actual root cause was the width, this is a second, independent safety margin, not a replacement for Step 1).
+
+Then find `PanelSheen`, also from Task 12:
+
+```xml
+    <Style x:Key="PanelSheen" TargetType="{x:Type Border}">
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Offset="0.0" Color="#14FFFFFF" />
+                    <GradientStop Offset="0.35" Color="#00FFFFFF" />
+                    <GradientStop Offset="1.0" Color="#00000000" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+```
+
+(This was actually added in Task 5, not Task 12 — it lives in the same file, find it by its `x:Key`, not by which task added it.) Change the first `GradientStop`'s `Color` from `#14FFFFFF` (~8% white) to `#26FFFFFF` (~15% white), and its `Offset` fade point from `0.35` to `0.45`, so the highlight reads as a visible sheen instead of being nearly invisible against a dark background:
+
+```xml
+    <Style x:Key="PanelSheen" TargetType="{x:Type Border}">
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Offset="0.0" Color="#26FFFFFF" />
+                    <GradientStop Offset="0.45" Color="#00FFFFFF" />
+                    <GradientStop Offset="1.0" Color="#00000000" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+```
+
+- [ ] **Step 3: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`.
+
+- [ ] **Step 4: Update the controller's own live test config**
+
+This step is for the controller, not this task's implementer subagent — note it here for completeness, but do not attempt it as part of implementing this task: the human user's local `%LocalAppData%\Pulsebar\settings.json` already has `SidebarWidth: 180`, `BGColor: "#000000"`, `BGOpacity: 0.85` explicitly saved from an earlier run (a saved value always wins over a code default), so the code-level default change in Step 1 will not by itself change what the user sees on their next launch. The controller updates that specific file's three values to match Step 1's new defaults directly, after this task's code change is reviewed and merged — this is a one-time convenience for the current test session, not something future installs need (a fresh install with no settings.json will pick up the new code defaults automatically).
+
+- [ ] **Step 5: Run and screenshot**
+
+Controller + human user step, same as prior tasks: launch the exe, screenshot the docked panel. Expect a visibly wider panel, a dark navy-tinted (not flat black/grey) background, and the clock rendering without clipping.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add Pulsebar/Settings.cs Pulsebar/FluentStyle.xaml
+git commit -m "Widen the default panel and deepen the default background tint"
+```
