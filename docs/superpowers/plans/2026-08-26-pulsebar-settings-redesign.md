@@ -846,3 +846,53 @@ In `Pulsebar/Project Overview.md`: add a line noting the Settings window redesig
 git add docs/superpowers/specs/2026-08-26-pulsebar-settings-redesign.md
 git commit -m "Update Settings redesign spec to reflect the shipped state"
 ```
+
+---
+
+### Task 12: Dark-theme the color picker swatches
+
+**Why this task exists:** user feedback after reviewing the running app — the three `xctk:ColorPicker` controls (Appearance tab's BGColor/FontColor/AlertFontColor) still show Xceed's default light closed-state swatch button. Scoped explicitly to the closed-state control only, per the user's choice — the popup/canvas that opens when you click it stays native (a full custom re-template of that popup is a much larger, separate effort, similar in scale to the ComboBox work, and wasn't asked for).
+
+**Files:**
+- Modify: `Pulsebar/SettingsStyle.xaml` (new `SettingsColorPicker` style)
+- Modify: `Pulsebar/Settings.xaml` (apply the new style to all 3 `ColorPicker` instances)
+
+**Interfaces:**
+- Produces: `SettingsColorPicker` style, `TargetType="{x:Type xctk:ColorPicker}"` (note the `xctk` namespace — this is the Xceed Extended WPF Toolkit control, already referenced via `xmlns:xctk` in both files).
+
+This is deliberately a **Setters-only** style, no custom `ControlTemplate` — Xceed's `ColorPicker` is a third-party control whose internal template part names aren't documented the way WPF's built-in controls are, so writing a full re-template carries real risk of the same class of runtime failure already hit twice this session (ComboBox, and would-be Slider/TextBox issues avoided by staying simple). Setting `Background`/`BorderBrush`/`Foreground` works because Xceed's own default template does respect those standard properties via internal TemplateBinding — that's true of every well-built custom control in this toolkit (confirmed by the fact `UsingAlphaChannel`/`ColorMode`/`DisplayColorAndName`/`ShowStandardColors` already work as plain property setters elsewhere in this codebase, in `App.xaml`'s pre-existing `SettingGrid`-scoped `ColorPicker` style).
+
+- [ ] **Step 1: Add the style**
+
+In `Pulsebar/SettingsStyle.xaml`, add:
+
+```xml
+            <Style x:Key="SettingsColorPicker" TargetType="{x:Type xctk:ColorPicker}">
+                <Setter Property="Background" Value="#1A1F2E" />
+                <Setter Property="BorderBrush" Value="#2A3040" />
+                <Setter Property="Foreground" Value="#E8EAF0" />
+                <Setter Property="Padding" Value="6,4" />
+            </Style>
+```
+
+This requires adding `xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"` to `SettingsStyle.xaml`'s root `<ResourceDictionary>` element — it isn't there yet (this file has only needed `style`/`frame`/`win`/`conv` prefixes so far).
+
+- [ ] **Step 2: Apply it to all three ColorPickers**
+
+In `Pulsebar/Settings.xaml`, find each of the three `<xctk:ColorPicker ...>` elements (search for `xctk:ColorPicker` — one in the `BGColor` row, one in `FontColor`, one in `AlertFontColor`, all in the Appearance tab) and add `Style="{StaticResource SettingsColorPicker}"` to each, alongside their existing attributes (`Margin="0,6"`, `SelectedColor=...`, `ToolTip=...`, and for the `BGColor` one, `IsEnabled=...` too) — do not remove or reorder anything already there, just add the `Style` attribute.
+
+- [ ] **Step 3: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`.
+
+- [ ] **Step 4: Run and verify**
+
+Controller + human user step: launch the app, open Settings → Appearance, confirm all three color swatches now show a dark background/border instead of the native light chrome, and confirm clicking one still opens a working color-selection popup (native chrome there is expected and fine) and still changes the bound color correctly.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add Pulsebar/SettingsStyle.xaml Pulsebar/Settings.xaml
+git commit -m "Dark-theme the color picker swatches"
+```
