@@ -1633,3 +1633,344 @@ Controller + human user step, same as prior tasks: launch the exe, open Settings
 git add Pulsebar/Settings.xaml Pulsebar/FlatStyle.xaml Pulsebar/App.xaml
 git commit -m "Dark-theme the Settings/Setup/Update/ChangeLog window chrome, widen Settings"
 ```
+
+---
+
+### Task 16: Narrow the sidebar 5%, match drive bar height to CPU/RAM
+
+**Why this task exists:** user feedback after the Monitors tab redesign shipped — the sidebar panel itself should be 5% narrower, and the drive load bars (currently `Height="9"`, set in an earlier ad hoc fix) should match the height of the CPU/RAM/GPU load bars (`MetricLoadBar` style, `Height="4"`) exactly, not just be "close."
+
+**Files:**
+- Modify: `Pulsebar/Settings.cs` (`_sidebarWidth` default)
+- Modify: `Pulsebar/FluentStyle.xaml` (`DriveProgress`'s `Height`)
+
+- [ ] **Step 1: Narrow the default sidebar width by 5%**
+
+In `Pulsebar/Settings.cs`, find:
+
+```csharp
+        private int _sidebarWidth { get; set; } = 260;
+```
+
+Change to:
+
+```csharp
+        private int _sidebarWidth { get; set; } = 247;
+```
+
+(260 × 0.95 = 247.)
+
+- [ ] **Step 2: Match the drive bar height to CPU/RAM/GPU**
+
+In `Pulsebar/FluentStyle.xaml`, find `DriveProgress`:
+
+```xml
+                <Setter Property="Height" Value="9" />
+```
+
+Change to:
+
+```xml
+                <Setter Property="Height" Value="4" />
+```
+
+(`4` is `MetricLoadBar`'s exact `Height` value — the style CPU/RAM/GPU load bars use — so this is now a literal match, not an approximation.)
+
+- [ ] **Step 3: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add Pulsebar/Settings.cs Pulsebar/FluentStyle.xaml
+git commit -m "Narrow the sidebar 5% and match drive bar height to CPU/RAM/GPU"
+```
+
+(Controller note, not part of this task: after this lands, update the live `%LocalAppData%\Pulsebar\settings.json`'s `SidebarWidth` to `247` — same reasoning as every prior default-value change this session, a saved value always wins over a code default.)
+
+---
+
+### Task 17: Space-based severity coloring for drive load bars
+
+**Why this task exists:** user request — drive bars should color the same way CPU/RAM/GPU bars do (green/yellow/red), but keyed on **free space remaining**, not load percentage: green normally, yellow under 10% free, red under 5% free. This is a different metric direction than the existing `LoadSeverityColorConverter` (which keys on load being high), needs its own converter.
+
+**Files:**
+- Modify: `Pulsebar/Converters.cs` (new `DriveSeverityColorConverter` class)
+- Modify: `Pulsebar/FluentStyle.xaml` (`DriveProgress`'s `Foreground`, registering the new converter)
+
+**Interfaces:**
+- Produces: `DriveSeverityColorConverter`, namespace `Pulsebar.Converters`, `IValueConverter`, `double → SolidColorBrush`. Input is the drive's load `Value` (0-100, percent of capacity **used** — confirmed via `DriveProgress`'s existing `Value="{Binding Path=Value, Mode=OneWay}"` binding with `DataContext="{Binding Path=LoadMetric}"`, `Minimum="0"`/`Maximum="100"`, and the `MetricKey.DriveLoad` naming). "Less than 10% free" = `Value >= 90`; "less than 5% free" = `Value >= 95`.
+
+- [ ] **Step 1: Add the converter**
+
+In `Pulsebar/Converters.cs`, add (matching this file's 4-space-indent style, and the existing `LoadSeverityColorConverter`'s frozen-brush pattern in `FluentStyle.xaml`'s consumer, but note: `LoadSeverityColorConverter` itself lives in `FluentStyle.xaml`, not `Converters.cs` — this new one goes in `Converters.cs` instead, since it needs `System.Windows.Media` types the same way `LoadSeverityColorConverter` does, and this file already has other converters following this exact 4-space pattern):
+
+```csharp
+    public class DriveSeverityColorConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush _ok = MakeBrush("#3E8F4C");
+        private static readonly SolidColorBrush _low = MakeBrush("#B4791E");
+        private static readonly SolidColorBrush _critical = MakeBrush("#B23A2E");
+
+        private static SolidColorBrush MakeBrush(string hex)
+        {
+            SolidColorBrush _brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+            _brush.Freeze();
+            return _brush;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double _usedPercent = value is double ? (double)value : 0d;
+
+            if (_usedPercent >= 95d)
+            {
+                return _critical;
+            }
+
+            if (_usedPercent >= 90d)
+            {
+                return _low;
+            }
+
+            return _ok;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
+```
+
+This needs `using System.Windows.Media;` in `Converters.cs`'s `using` block if it isn't already there — check before adding (the file may already have it from other converters; do not add a duplicate `using`).
+
+- [ ] **Step 2: Register the converter and wire it in**
+
+In `Pulsebar/FluentStyle.xaml`, add `xmlns:conv="clr-namespace:Pulsebar.Converters"` to the root `<ResourceDictionary>` element if it isn't already declared there (check first — `SettingsStyle.xaml` needed this addition in an earlier task, `FluentStyle.xaml` may or may not already have it).
+
+Add the converter resource near `LoadSeverityColorConverter`'s own declaration:
+
+```xml
+            <conv:DriveSeverityColorConverter x:Key="DriveSeverityColorConverter" />
+```
+
+Then find `DriveProgress`'s `Foreground` setter:
+
+```xml
+                <Setter Property="Foreground" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontColor, Mode=OneWay}" />
+```
+
+Change to:
+
+```xml
+                <Setter Property="Foreground" Value="{Binding Path=Value, Mode=OneWay, Converter={StaticResource DriveSeverityColorConverter}}" />
+```
+
+This changes `DriveProgress`'s color source from the user's configured `FontColor` to the new severity converter — matching how `MetricLoadBar` (CPU/RAM/GPU) already works (its `Foreground` is also purely severity-driven, not tied to `FontColor`). Also remove the now-redundant `IsAlert` `DataTrigger` inside `DriveProgress`'s `ControlTemplate.Triggers` (the one that overrides `Foreground` to `AlertFontColor` when `IsAlert=True`) — with a severity converter now driving color continuously, keeping a separate binary alert-color override layered on top would fight with it. Confirm this matches how `MetricLoadBar` behaves too (it has no `ControlTemplate.Triggers` block at all) before removing it, so this task's change is a real alignment, not a guess.
+
+- [ ] **Step 3: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add Pulsebar/Converters.cs Pulsebar/FluentStyle.xaml
+git commit -m "Add space-based severity coloring for drive load bars"
+```
+
+---
+
+### Task 18: GPU-aware severity coloring (no red state, yellow only at 98%+)
+
+**Why this task exists:** user request — GPU load specifically should stay green under normal conditions and only turn yellow at 98%+ load, never red (unlike CPU/RAM, which use the existing 60/85 amber/red thresholds). The current `LoadSeverityColorConverter` has no way to know which hardware type a metric belongs to — it only ever sees the raw percentage value, applied identically to every percent-metric via `Append == "%"`. This task makes it type-aware.
+
+**Files:**
+- Modify: `Pulsebar/FluentStyle.xaml` (`LoadSeverityColorConverter` class stays declared here — confirm this, it was added directly in `FluentStyle.xaml` in an earlier task rather than `Converters.cs`, unlike the rest of this file's converters — changing its interface from `IValueConverter` to `IMultiValueConverter`; also `MetricLoadBar`'s `Foreground` binding, changed to a `MultiBinding`)
+- Modify: `Pulsebar/Sidebar.xaml` (the `iMetric` `DataTemplate`'s `MetricValue` severity-color `Setter`, changed to the same `MultiBinding`)
+
+**Interfaces:**
+- `LoadSeverityColorConverter` changes from `IValueConverter` (`double → SolidColorBrush`) to `IMultiValueConverter` (`[MetricKey, double] → SolidColorBrush`) — every consumer must switch from a single `Converter={StaticResource ...}` binding to a `MultiBinding`.
+
+First, locate the actual current declaration of `LoadSeverityColorConverter` — check whether it's a `<Style>`-adjacent C# class inline in `FluentStyle.xaml.cs`, or (more likely, matching how this session's earlier tasks built it) a plain C# class file. Read `Pulsebar/FluentStyle.xaml.cs` and search the whole `Pulsebar` folder for `class LoadSeverityColorConverter` if it's not obviously in `FluentStyle.xaml.cs`, since the plan text that originally added it may not have specified the exact file precisely enough to trust blindly — confirm before editing.
+
+- [ ] **Step 1: Change the converter to a type-aware IMultiValueConverter**
+
+Find the `LoadSeverityColorConverter` class. Its current shape (added in an earlier task in this same plan):
+
+```csharp
+    public class LoadSeverityColorConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush _low = MakeBrush("#3E8F4C");
+        private static readonly SolidColorBrush _medium = MakeBrush("#B4791E");
+        private static readonly SolidColorBrush _high = MakeBrush("#B23A2E");
+
+        private static SolidColorBrush MakeBrush(string hex)
+        {
+            SolidColorBrush _brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+            _brush.Freeze();
+            return _brush;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double _value = value is double ? (double)value : 0d;
+
+            if (_value >= 85d)
+            {
+                return _high;
+            }
+
+            if (_value >= 60d)
+            {
+                return _medium;
+            }
+
+            return _low;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
+```
+
+Replace with:
+
+```csharp
+    public class LoadSeverityColorConverter : IMultiValueConverter
+    {
+        private static readonly SolidColorBrush _low = MakeBrush("#3E8F4C");
+        private static readonly SolidColorBrush _medium = MakeBrush("#B4791E");
+        private static readonly SolidColorBrush _high = MakeBrush("#B23A2E");
+
+        private static SolidColorBrush MakeBrush(string hex)
+        {
+            SolidColorBrush _brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+            _brush.Freeze();
+            return _brush;
+        }
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values == null || values.Length < 2)
+            {
+                return _low;
+            }
+
+            MetricKey _key = values[0] is MetricKey ? (MetricKey)values[0] : MetricKey.CPULoad;
+            double _value = values[1] is double ? (double)values[1] : 0d;
+
+            bool _isGpuLoad = _key == MetricKey.GPUCoreLoad || _key == MetricKey.GPUVRAMLoad;
+
+            if (_isGpuLoad)
+            {
+                if (_value >= 98d)
+                {
+                    return _medium;
+                }
+
+                return _low;
+            }
+
+            if (_value >= 85d)
+            {
+                return _high;
+            }
+
+            if (_value >= 60d)
+            {
+                return _medium;
+            }
+
+            return _low;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
+```
+
+(GPU load never returns `_high` — the requirement is explicitly "no red state" for GPU. `MetricKey` is declared in `Pulsebar.Monitoring` — confirm `FluentStyle.xaml.cs`, or wherever this class actually lives, already has a `using Pulsebar.Monitoring;` (or equivalent) available; if the file doesn't compile without it, add the `using`, don't work around it with a fully-qualified type name sprinkled through the method body.)
+
+- [ ] **Step 2: Update MetricLoadBar to a MultiBinding**
+
+In `Pulsebar/FluentStyle.xaml`, find `MetricLoadBar`'s `Foreground` setter:
+
+```xml
+                <Setter Property="Foreground" Value="{Binding Path=nValue, Mode=OneWay, Converter={StaticResource LoadSeverityColorConverter}}" />
+```
+
+Change to:
+
+```xml
+                <Setter Property="Foreground">
+                    <Setter.Value>
+                        <MultiBinding Converter="{StaticResource LoadSeverityColorConverter}">
+                            <Binding Path="Key" Mode="OneWay" />
+                            <Binding Path="nValue" Mode="OneWay" />
+                        </MultiBinding>
+                    </Setter.Value>
+                </Setter>
+```
+
+- [ ] **Step 3: Update the metric-value text color to the same MultiBinding**
+
+In `Pulsebar/Sidebar.xaml`, find (inside the `iMetric` `DataTemplate`'s `MetricValue` inline style, added in an earlier task in this plan):
+
+```xml
+                                                                                        <DataTrigger Binding="{Binding Path=Append, Mode=OneWay}" Value="%">
+                                                                                            <Setter Property="Foreground" Value="{Binding Path=nValue, Mode=OneWay, Converter={StaticResource LoadSeverityColorConverter}}" />
+                                                                                        </DataTrigger>
+```
+
+Change the `Setter`'s `Value` the same way:
+
+```xml
+                                                                                        <DataTrigger Binding="{Binding Path=Append, Mode=OneWay}" Value="%">
+                                                                                            <Setter Property="Foreground">
+                                                                                                <Setter.Value>
+                                                                                                    <MultiBinding Converter="{StaticResource LoadSeverityColorConverter}">
+                                                                                                        <Binding Path="Key" Mode="OneWay" />
+                                                                                                        <Binding Path="nValue" Mode="OneWay" />
+                                                                                                    </MultiBinding>
+                                                                                                </Setter.Value>
+                                                                                            </Setter>
+                                                                                        </DataTrigger>
+```
+
+(Match the exact current indentation level of the surrounding file when you make this edit — the snippet above uses a placeholder indent depth, not the file's real one; this block is deeply nested inside several `ItemsControl.ItemTemplate`/`DataTemplate` levels.)
+
+- [ ] **Step 4: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add Pulsebar/FluentStyle.xaml Pulsebar/Sidebar.xaml
+git commit -m "Make load-bar severity coloring type-aware; GPU never turns red"
+```
+
+---
+
+### Task 19: Full color-coding verification pass
+
+**Files:** none (verification only).
+
+- [ ] **Step 1: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`.
+
+- [ ] **Step 2: Human-assisted verification**
+
+Controller + human user step: launch the app, and over time (or by triggering load artificially, e.g. running a CPU/GPU-intensive task) confirm: CPU/RAM load bars still shift green→amber→red at the original 60/85 thresholds (unchanged by Task 18); GPU load bar stays green up to 98% and only turns yellow above that, never red; drive bars are green normally, yellow under 10% free space, red under 5% free space; the sidebar is visibly narrower; drive bars are visually the same height as CPU/RAM/GPU bars.
