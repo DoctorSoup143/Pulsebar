@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -24,8 +25,22 @@ namespace Pulsebar
 
             DataContext = Model = new SettingsModel(sidebar);
 
+            PawnIoNotice.Visibility = PawnIoDetector.IsInstalled ? Visibility.Collapsed : Visibility.Visible;
+
             Owner = sidebar;
             ShowDialog();
+        }
+
+        private void InstallPawnIoButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo("https://pawnio.eu") { UseShellExecute = true });
+            }
+            catch
+            {
+                // Best-effort: if the shell can't open the link, there's nothing more we can do here.
+            }
         }
 
         private async Task Save(bool finalize)

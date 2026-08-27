@@ -961,6 +961,24 @@ namespace Pulsebar.Framework {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CPU clock and temperature require the PawnIO driver, which isn't installed. Install it to enable these readings..
+        /// </summary>
+        public static string SettingsPawnIoNoticeText {
+            get {
+                return ResourceManager.GetString("SettingsPawnIoNoticeText", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Install PawnIO.
+        /// </summary>
+        public static string SettingsPawnIoInstallButton {
+            get {
+                return ResourceManager.GetString("SettingsPawnIoInstallButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Alert Font Color.
         /// </summary>
         public static string SettingsAlertFontColor {

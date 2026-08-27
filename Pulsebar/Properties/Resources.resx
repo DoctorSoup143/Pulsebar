@@ -500,6 +500,14 @@
     <value>Advanced</value>
     <comment>Title of the settings advanced tab</comment>
   </data>
+  <data name="SettingsPawnIoNoticeText" xml:space="preserve">
+    <value>CPU clock and temperature require the PawnIO driver, which isn't installed. Install it to enable these readings.</value>
+    <comment>Notice shown in the Monitors tab when the PawnIO driver is not installed</comment>
+  </data>
+  <data name="SettingsPawnIoInstallButton" xml:space="preserve">
+    <value>Install PawnIO</value>
+    <comment>Button that opens the official PawnIO download page</comment>
+  </data>
   <data name="SettingsAlertFontColor" xml:space="preserve">
     <value>Alert Font Color</value>
     <comment>Settings alert font color label</comment>

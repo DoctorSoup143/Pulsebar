@@ -211,6 +211,13 @@
                         <TextBlock Text="{x:Static frame:Resources.SettingsMonitorsSubtitle2}" />
                     </StackPanel>
 
+                    <Border x:Name="PawnIoNotice" Style="{StaticResource PawnIoNoticeBorder}" Visibility="Collapsed">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource PawnIoInstallButton}" Content="{x:Static frame:Resources.SettingsPawnIoInstallButton}" Click="InstallPawnIoButton_Click" VerticalAlignment="Center" />
+                            <TextBlock Style="{StaticResource PawnIoNoticeText}" Text="{x:Static frame:Resources.SettingsPawnIoNoticeText}" />
+                        </DockPanel>
+                    </Border>
+
                     <ItemsControl ItemsSource="{Binding Path=MonitorConfig, Mode=OneWay}" dd:DragDrop.IsDragSource="True" dd:DragDrop.IsDropTarget="True">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type monitor:MonitorConfig}">
