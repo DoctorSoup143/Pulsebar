@@ -127,9 +127,14 @@
                 <Setter Property="GridLinesVisibility" Value="None" />
                 <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
                 <Style.Resources>
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#E1E7E9" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3FBBA4" />
                     <Style TargetType="{x:Type DataGridCell}">
                         <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Background" Value="#1A1F2E" />
+                        <Setter Property="Foreground" Value="#E8EAF0" />
+                    </Style>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Setter Property="Background" Value="#1A1F2E" />
                     </Style>
                 </Style.Resources>
             </Style>
@@ -140,6 +145,8 @@
 
             <Style x:Key="MonitorGridHeader" TargetType="{x:Type DataGridColumnHeader}">
                 <Setter Property="Padding" Value="12,4" />
+                <Setter Property="Background" Value="#1A1F2E" />
+                <Setter Property="Foreground" Value="#E8EAF0" />
             </Style>
 
             <Style x:Key="MonitorGridHeaderCenter" TargetType="{x:Type DataGridColumnHeader}" BasedOn="{StaticResource MonitorGridHeader}">
@@ -168,6 +175,8 @@
                 <Setter Property="Padding" Value="12,4" />
                 <Setter Property="IsHitTestVisible" Value="False" />
                 <Setter Property="HorizontalContentAlignment" Value="Left" />
+                <Setter Property="Background" Value="#1A1F2E" />
+                <Setter Property="Foreground" Value="#E8EAF0" />
             </Style>
 
             <Style x:Key="MonitorHardwareHeaderCenter" TargetType="{x:Type GridViewColumnHeader}" BasedOn="{StaticResource MonitorHardwareHeader}">
@@ -200,6 +209,8 @@
             <Style x:Key="HotkeyToggle" TargetType="{x:Type ToggleButton}">
                 <Setter Property="Content" Value="Bind" />
                 <Setter Property="Height" Value="22" />
+                <Setter Property="Background" Value="#1A1F2E" />
+                <Setter Property="Foreground" Value="#E8EAF0" />
             </Style>
 
             <Style x:Key="HotkeyLabel" TargetType="{x:Type TextBox}">
@@ -207,6 +218,9 @@
                 <Setter Property="Padding" Value="5,0" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
                 <Setter Property="IsReadOnly" Value="True" />
+                <Setter Property="Background" Value="#1A1F2E" />
+                <Setter Property="Foreground" Value="#E8EAF0" />
+                <Setter Property="BorderBrush" Value="#2A3040" />
             </Style>
 
             <Style x:Key="DummyLabel" TargetType="{x:Type StackPanel}">
