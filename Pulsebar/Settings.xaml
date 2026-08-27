@@ -85,58 +85,55 @@
                 </StackPanel>
             </TabItem>
             <TabItem Header="{x:Static frame:Resources.SettingsAdvancedTab}">
-                <Grid Style="{StaticResource SettingGrid}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
-
-                    <Label Grid.Column="0" Grid.Row="0" Content="{x:Static frame:Resources.SettingsUIScale}" />
-                    <DockPanel Grid.Column="1" Grid.Row="0">
-                        <TextBox Text="{Binding ElementName=UIScaleSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
-                        <Slider x:Name="UIScaleSlider" Value="{Binding Path=UIScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0.5" Maximum="3.0" TickFrequency="0.1" LargeChange="0.5" ToolTip="{x:Static frame:Resources.SettingsUIScaleTooltip}" />
+                <StackPanel Style="{StaticResource SettingsTabPage}">
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsUIScale}" />
+                        <DockPanel>
+                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=UIScaleSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <Slider x:Name="UIScaleSlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=UIScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0.5" Maximum="3.0" TickFrequency="0.1" LargeChange="0.5" ToolTip="{x:Static frame:Resources.SettingsUIScaleTooltip}" />
+                        </DockPanel>
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsHorizontalOffset}" />
+                        <DockPanel>
+                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=XOffsetSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <Slider x:Name="XOffsetSlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=XOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="-2000" Maximum="2000" TickFrequency="1" LargeChange="1000" ValueChanged="OffsetSlider_ValueChanged" ToolTip="{x:Static frame:Resources.SettingsHorizontalOffsetTooltip}" />
+                        </DockPanel>
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsVerticalOffset}" />
+                        <DockPanel>
+                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=YOffsetSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <Slider x:Name="YOffsetSlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=YOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="-2000" Maximum="2000" TickFrequency="1" LargeChange="1000" ValueChanged="OffsetSlider_ValueChanged" ToolTip="{x:Static frame:Resources.SettingsVerticalOffsetTooltip}" />
+                        </DockPanel>
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsPollingInterval}" />
+                        <DockPanel>
+                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=PollingIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <Slider x:Name="PollingIntervalSlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=PollingInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="100" Maximum="5000" TickFrequency="100" LargeChange="1000" ToolTip="{x:Static frame:Resources.SettingsPollingIntervalTooltip}" />
+                        </DockPanel>
                     </DockPanel>
 
-                    <Label Grid.Column="0" Grid.Row="1" Content="{x:Static frame:Resources.SettingsHorizontalOffset}" />
-                    <DockPanel Grid.Column="1" Grid.Row="1">
-                        <TextBox Text="{Binding ElementName=XOffsetSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
-                        <Slider x:Name="XOffsetSlider" Value="{Binding Path=XOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="-2000" Maximum="2000" TickFrequency="1" LargeChange="1000" ValueChanged="OffsetSlider_ValueChanged" ToolTip="{x:Static frame:Resources.SettingsHorizontalOffsetTooltip}" />
+                    <Border Style="{StaticResource SettingsSectionDivider}" />
+
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsToolbarMode}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Path=ToolbarMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsToolbarModeTooltip}" />
                     </DockPanel>
-
-                    <Label Grid.Column="0" Grid.Row="2" Content="{x:Static frame:Resources.SettingsVerticalOffset}" />
-                    <DockPanel Grid.Column="1" Grid.Row="2">
-                        <TextBox Text="{Binding ElementName=YOffsetSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
-                        <Slider x:Name="YOffsetSlider" Value="{Binding Path=YOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="-2000" Maximum="2000" TickFrequency="1" LargeChange="1000" ValueChanged="OffsetSlider_ValueChanged" ToolTip="{x:Static frame:Resources.SettingsVerticalOffsetTooltip}" />
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsClickThrough}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" x:Name="ClickThroughCheckbox" Checked="ClickThroughCheckbox_Checked" IsChecked="{Binding Path=ClickThrough, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsClickThroughTooltip}" />
                     </DockPanel>
-
-                    <Label Grid.Column="0" Grid.Row="3" Content="{x:Static frame:Resources.SettingsPollingInterval}" />
-                    <DockPanel Grid.Column="1" Grid.Row="3">
-                        <TextBox Text="{Binding ElementName=PollingIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
-                        <Slider x:Name="PollingIntervalSlider" Value="{Binding Path=PollingInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="100" Maximum="5000" TickFrequency="100" LargeChange="1000" ToolTip="{x:Static frame:Resources.SettingsPollingIntervalTooltip}" />
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsInitiallyHidden}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Path=InitiallyHidden, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsInitiallyHiddenTooltip}" />
                     </DockPanel>
-
-                    <Label Grid.Column="0" Grid.Row="4" Content="{x:Static frame:Resources.SettingsToolbarMode}" />
-                    <CheckBox Grid.Column="1" Grid.Row="4" IsChecked="{Binding Path=ToolbarMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsToolbarModeTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="5" Content="{x:Static frame:Resources.SettingsClickThrough}" />
-                    <CheckBox Grid.Column="1" Grid.Row="5" x:Name="ClickThroughCheckbox" Checked="ClickThroughCheckbox_Checked" IsChecked="{Binding Path=ClickThrough, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsClickThroughTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="6" Content="{x:Static frame:Resources.SettingsInitiallyHidden}" />
-                    <CheckBox Grid.Column="1" Grid.Row="6" IsChecked="{Binding Path=InitiallyHidden, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsInitiallyHiddenTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="7" Content="{x:Static frame:Resources.SettingsCollapseMenuBar}" />
-                    <CheckBox Grid.Column="1" Grid.Row="7" IsChecked="{Binding Path=CollapseMenuBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsCollapseMenuBarTooltip}" />
-                </Grid>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsCollapseMenuBar}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Path=CollapseMenuBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsCollapseMenuBarTooltip}" />
+                    </DockPanel>
+                </StackPanel>
             </TabItem>
             <TabItem Header="{x:Static frame:Resources.SettingsCustomizeTab}">
                 <StackPanel Style="{StaticResource SettingsTabPage}">
