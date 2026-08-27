@@ -46,42 +46,43 @@
         </StackPanel>
         <TabControl Style="{StaticResource SettingTab}">
             <TabItem Header="{x:Static frame:Resources.SettingsGeneralTab}">
-                <Grid Style="{StaticResource SettingGrid}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                    </Grid.RowDefinitions>
+                <StackPanel Style="{StaticResource SettingsTabPage}">
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsDock}" />
+                        <ComboBox Style="{StaticResource SettingsComboBox}" ItemsSource="{Binding Path=DockEdgeItems, Mode=OneWay}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Path=DockEdge, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsDockTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsScreen}" />
+                        <ComboBox Style="{StaticResource SettingsComboBox}" ItemsSource="{Binding Path=ScreenItems, Mode=OneWay}" DisplayMemberPath="Text" SelectedValuePath="Index" SelectedValue="{Binding Path=ScreenIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsScreenTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsLanguage}" />
+                        <ComboBox Style="{StaticResource SettingsComboBox}" ItemsSource="{Binding Path=CultureItems, Mode=OneWay}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Path=Culture, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsLanguageTooltip}" />
+                    </DockPanel>
 
-                    <Label Grid.Column="0" Grid.Row="0" Content="{x:Static frame:Resources.SettingsDock}" />
-                    <ComboBox Grid.Column="1" Grid.Row="0" ItemsSource="{Binding Path=DockEdgeItems, Mode=OneWay}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Path=DockEdge, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsDockTooltip}" />
+                    <Border Style="{StaticResource SettingsSectionDivider}" />
 
-                    <Label Grid.Column="0" Grid.Row="1" Content="{x:Static frame:Resources.SettingsScreen}" />
-                    <ComboBox VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Path=ScreenItems, Mode=OneWay}" DisplayMemberPath="Text" SelectedValuePath="Index" SelectedValue="{Binding Path=ScreenIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsScreenTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="2" Content="{x:Static frame:Resources.SettingsLanguage}" />
-                    <ComboBox VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" ItemsSource="{Binding Path=CultureItems, Mode=OneWay}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Path=Culture, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsLanguageTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="3" Content="{x:Static frame:Resources.SettingsReserveSpace}" />
-                    <CheckBox Grid.Column="1" Grid.Row="3" IsChecked="{Binding Path=UseAppBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsReserveSpaceTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="4" Content="{x:Static frame:Resources.SettingsAlwaysOnTop}" />
-                    <CheckBox Grid.Column="1" Grid.Row="4" IsChecked="{Binding Path=AlwaysTop, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAlwaysOnTopTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="5" Content="{x:Static frame:Resources.SettingsAutoUpdate}" />
-                    <CheckBox Grid.Column="1" Grid.Row="5" IsChecked="{Binding Path=AutoUpdate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAutoUpdateTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="6" Content="{x:Static frame:Resources.SettingsRunAtStartup}" />
-                    <CheckBox Grid.Column="1" Grid.Row="6" IsChecked="{Binding Path=RunAtStartup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsRunAtStartupTooltip}" />
-                </Grid>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsReserveSpace}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Path=UseAppBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsReserveSpaceTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsAlwaysOnTop}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Path=AlwaysTop, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAlwaysOnTopTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsAutoUpdate}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Path=AutoUpdate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAutoUpdateTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsRunAtStartup}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Path=RunAtStartup, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsRunAtStartupTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsShowTrayIcon}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" x:Name="ShowTrayIconCheckbox" Unchecked="ShowTrayIconCheckbox_Unchecked" IsChecked="{Binding Path=ShowTrayIcon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsShowTrayIconTooltip}" />
+                    </DockPanel>
+                </StackPanel>
             </TabItem>
             <TabItem Header="{x:Static frame:Resources.SettingsAdvancedTab}">
                 <Grid Style="{StaticResource SettingGrid}">
@@ -94,7 +95,6 @@
                         <RowDefinition Height="38px"></RowDefinition>
                         <RowDefinition Height="38px"></RowDefinition>
                         <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
@@ -125,20 +125,17 @@
                         <Slider x:Name="PollingIntervalSlider" Value="{Binding Path=PollingInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="100" Maximum="5000" TickFrequency="100" LargeChange="1000" ToolTip="{x:Static frame:Resources.SettingsPollingIntervalTooltip}" />
                     </DockPanel>
 
-                    <Label Grid.Column="0" Grid.Row="4" Content="{x:Static frame:Resources.SettingsShowTrayIcon}" />
-                    <CheckBox Grid.Column="1" Grid.Row="4" x:Name="ShowTrayIconCheckbox" Unchecked="ShowTrayIconCheckbox_Unchecked" IsChecked="{Binding Path=ShowTrayIcon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsShowTrayIconTooltip}" />
+                    <Label Grid.Column="0" Grid.Row="4" Content="{x:Static frame:Resources.SettingsToolbarMode}" />
+                    <CheckBox Grid.Column="1" Grid.Row="4" IsChecked="{Binding Path=ToolbarMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsToolbarModeTooltip}" />
 
-                    <Label Grid.Column="0" Grid.Row="5" Content="{x:Static frame:Resources.SettingsToolbarMode}" />
-                    <CheckBox Grid.Column="1" Grid.Row="5" IsChecked="{Binding Path=ToolbarMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsToolbarModeTooltip}" />
+                    <Label Grid.Column="0" Grid.Row="5" Content="{x:Static frame:Resources.SettingsClickThrough}" />
+                    <CheckBox Grid.Column="1" Grid.Row="5" x:Name="ClickThroughCheckbox" Checked="ClickThroughCheckbox_Checked" IsChecked="{Binding Path=ClickThrough, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsClickThroughTooltip}" />
 
-                    <Label Grid.Column="0" Grid.Row="6" Content="{x:Static frame:Resources.SettingsClickThrough}" />
-                    <CheckBox Grid.Column="1" Grid.Row="6" x:Name="ClickThroughCheckbox" Checked="ClickThroughCheckbox_Checked" IsChecked="{Binding Path=ClickThrough, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsClickThroughTooltip}" />
+                    <Label Grid.Column="0" Grid.Row="6" Content="{x:Static frame:Resources.SettingsInitiallyHidden}" />
+                    <CheckBox Grid.Column="1" Grid.Row="6" IsChecked="{Binding Path=InitiallyHidden, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsInitiallyHiddenTooltip}" />
 
-                    <Label Grid.Column="0" Grid.Row="7" Content="{x:Static frame:Resources.SettingsInitiallyHidden}" />
-                    <CheckBox Grid.Column="1" Grid.Row="7" IsChecked="{Binding Path=InitiallyHidden, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsInitiallyHiddenTooltip}" />
-                    
-                    <Label Grid.Column="0" Grid.Row="8" Content="{x:Static frame:Resources.SettingsCollapseMenuBar}" />
-                    <CheckBox Grid.Column="1" Grid.Row="8" IsChecked="{Binding Path=CollapseMenuBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsCollapseMenuBarTooltip}" />
+                    <Label Grid.Column="0" Grid.Row="7" Content="{x:Static frame:Resources.SettingsCollapseMenuBar}" />
+                    <CheckBox Grid.Column="1" Grid.Row="7" IsChecked="{Binding Path=CollapseMenuBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsCollapseMenuBarTooltip}" />
                 </Grid>
             </TabItem>
             <TabItem Header="{x:Static frame:Resources.SettingsCustomizeTab}">
