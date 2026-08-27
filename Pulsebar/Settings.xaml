@@ -139,72 +139,53 @@
                 </Grid>
             </TabItem>
             <TabItem Header="{x:Static frame:Resources.SettingsCustomizeTab}">
-                <Grid Style="{StaticResource SettingGrid}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="38px"></RowDefinition>
-                    </Grid.RowDefinitions>
-
-                    <Label Grid.Column="0" Grid.Row="0" Content="{x:Static frame:Resources.SettingsSidebarWidth}" />
-                    <DockPanel Grid.Column="1" Grid.Row="0">
-                        <TextBox Text="{Binding ElementName=SidebarWidthSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
-                        <Slider x:Name="SidebarWidthSlider" Value="{Binding Path=SidebarWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="100" Maximum="300" TickFrequency="5" LargeChange="100" ToolTip="{x:Static frame:Resources.SettingsSidebarWidthTooltip}" />
+                <StackPanel Style="{StaticResource SettingsTabPage}">
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsSidebarWidth}" />
+                        <DockPanel>
+                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=SidebarWidthSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <Slider x:Name="SidebarWidthSlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=SidebarWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="100" Maximum="300" TickFrequency="5" LargeChange="100" ToolTip="{x:Static frame:Resources.SettingsSidebarWidthTooltip}" />
+                        </DockPanel>
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsAutoBackground}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Path=AutoBGColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAutoBackgroundTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsBackgroundColor}" />
+                        <xctk:ColorPicker Margin="0,6" IsEnabled="{Binding Path=AutoBGColor, Mode=OneWay, Converter={StaticResource BoolInverseConverter}}" SelectedColor="{Binding Path=BGColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsBackgroundColorTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsBackgroundOpacity}" />
+                        <DockPanel>
+                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=BGOpacitySlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <Slider x:Name="BGOpacitySlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=BGOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0.01" Maximum="1.0" LargeChange="0.1" TickFrequency="0.01" ToolTip="{x:Static frame:Resources.SettingsBackgroundOpacityTooltip}" />
+                        </DockPanel>
                     </DockPanel>
 
-                    <Label Grid.Column="0" Grid.Row="1" Content="{x:Static frame:Resources.SettingsAutoBackground}" />
-                    <CheckBox Grid.Column="1" Grid.Row="1" IsChecked="{Binding Path=AutoBGColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAutoBackgroundTooltip}" />
+                    <Border Style="{StaticResource SettingsSectionDivider}" />
 
-                    <Label Grid.Column="0" Grid.Row="2" Content="{x:Static frame:Resources.SettingsBackgroundColor}" />
-                    <xctk:ColorPicker Grid.Column="1" Grid.Row="2" IsEnabled="{Binding Path=AutoBGColor, Mode=OneWay, Converter={StaticResource BoolInverseConverter}}" SelectedColor="{Binding Path=BGColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsBackgroundColorTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="3" Content="{x:Static frame:Resources.SettingsBackgroundOpacity}" />
-                    <DockPanel Grid.Column="1" Grid.Row="3">
-                        <TextBox Text="{Binding ElementName=BGOpacitySlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
-                        <Slider x:Name="BGOpacitySlider" Value="{Binding Path=BGOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0.01" Maximum="1.0" LargeChange="0.1" TickFrequency="0.01" ToolTip="{x:Static frame:Resources.SettingsBackgroundOpacityTooltip}" />
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsTextAlign}" />
+                        <ComboBox Style="{StaticResource SettingsComboBox}" ItemsSource="{Binding Path=TextAlignItems, Mode=OneWay}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Path=TextAlign, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsTextAlignTooltip}" />
                     </DockPanel>
-
-                    <Label Grid.Column="0" Grid.Row="4" Content="{x:Static frame:Resources.SettingsTextAlign}" />
-                    <ComboBox Grid.Column="1" Grid.Row="4" ItemsSource="{Binding Path=TextAlignItems, Mode=OneWay}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Path=TextAlign, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsTextAlignTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="5" Content="{x:Static frame:Resources.SettingsFontSize}" />
-                    <ComboBox Grid.Column="1" Grid.Row="5" ItemsSource="{Binding Path=FontSettingItems, Mode=OneWay}" DisplayMemberPath="FontSize" SelectedValue="{Binding Path=FontSetting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsFontSizeTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="6" Content="{x:Static frame:Resources.SettingsFontColor}" />
-                    <xctk:ColorPicker Grid.Column="1" Grid.Row="6" SelectedColor="{Binding Path=FontColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsFontColorTooltip}"/>
-
-                    <Label Grid.Column="0" Grid.Row="7" Content="{x:Static frame:Resources.SettingsAlertFontColor}" />
-                    <xctk:ColorPicker Grid.Column="1" Grid.Row="7" SelectedColor="{Binding Path=AlertFontColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAlertFontColorTooltip}"/>
-
-                    <Label Grid.Column="0" Grid.Row="8" Content="{x:Static frame:Resources.SettingsAlertBlink}" />
-                    <CheckBox Grid.Column="1" Grid.Row="8" IsChecked="{Binding Path=AlertBlink, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAlertBlinkTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="9" Content="{x:Static frame:Resources.SettingsShowMachineName}" />
-                    <CheckBox Grid.Column="1" Grid.Row="9" IsChecked="{Binding Path=ShowMachineName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsShowMachineNameTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="10" Content="{x:Static frame:Resources.SettingsShowClock}" />
-                    <CheckBox Grid.Column="1" Grid.Row="10" IsChecked="{Binding Path=ShowClock, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsShowClockTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="11" Content="{x:Static frame:Resources.Settings24HourClock}" />
-                    <CheckBox Grid.Column="1" Grid.Row="11" IsChecked="{Binding Path=Clock24HR, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Path=ShowClock, Mode=OneWay}" ToolTip="{x:Static frame:Resources.Settings24HourClockTooltip}" />
-
-                    <Label Grid.Column="0" Grid.Row="12" Content="{x:Static frame:Resources.SettingsDateFormat}" />
-                    <ComboBox Grid.Column="1" Grid.Row="12" ItemsSource="{Binding Path=DateSettingItems}" DisplayMemberPath="Display" SelectedValue="{Binding Path=DateSetting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Path=ShowClock, Mode=OneWay}" ToolTip="{x:Static frame:Resources.SettingsDateFormatTooltip}" />
-                </Grid>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsFontSize}" />
+                        <ComboBox Style="{StaticResource SettingsComboBox}" ItemsSource="{Binding Path=FontSettingItems, Mode=OneWay}" DisplayMemberPath="FontSize" SelectedValue="{Binding Path=FontSetting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsFontSizeTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsFontColor}" />
+                        <xctk:ColorPicker Margin="0,6" SelectedColor="{Binding Path=FontColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsFontColorTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsAlertFontColor}" />
+                        <xctk:ColorPicker Margin="0,6" SelectedColor="{Binding Path=AlertFontColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAlertFontColorTooltip}" />
+                    </DockPanel>
+                    <DockPanel Style="{StaticResource SettingsRow}">
+                        <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsAlertBlink}" />
+                        <CheckBox Style="{StaticResource ToggleSwitch}" IsChecked="{Binding Path=AlertBlink, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAlertBlinkTooltip}" />
+                    </DockPanel>
+                </StackPanel>
             </TabItem>
             <TabItem Header="{x:Static frame:Resources.SettingsMonitorsTab}">
                 <StackPanel Style="{StaticResource VerticalPanel}">
