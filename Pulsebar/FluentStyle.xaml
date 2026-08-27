@@ -332,7 +332,14 @@
                 <Setter Property="Margin" Value="0,4,0,8" />
                 <Setter Property="Height" Value="4" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="Foreground" Value="{Binding Path=nValue, Mode=OneWay, Converter={StaticResource LoadSeverityColorConverter}}" />
+                <Setter Property="Foreground">
+                    <Setter.Value>
+                        <MultiBinding Converter="{StaticResource LoadSeverityColorConverter}">
+                            <Binding Path="Key" Mode="OneWay" />
+                            <Binding Path="nValue" Mode="OneWay" />
+                        </MultiBinding>
+                    </Setter.Value>
+                </Setter>
                 <Setter Property="Visibility" Value="Collapsed" />
                 <Setter Property="Template">
                     <Setter.Value>

@@ -168,7 +168,14 @@
                                                                                 <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MetricValue}">
                                                                                     <Style.Triggers>
                                                                                         <DataTrigger Binding="{Binding Path=Append, Mode=OneWay}" Value="%">
-                                                                                            <Setter Property="Foreground" Value="{Binding Path=nValue, Mode=OneWay, Converter={StaticResource LoadSeverityColorConverter}}" />
+                                                                                            <Setter Property="Foreground">
+                                                                                                <Setter.Value>
+                                                                                                    <MultiBinding Converter="{StaticResource LoadSeverityColorConverter}">
+                                                                                                        <Binding Path="Key" Mode="OneWay" />
+                                                                                                        <Binding Path="nValue" Mode="OneWay" />
+                                                                                                    </MultiBinding>
+                                                                                                </Setter.Value>
+                                                                                            </Setter>
                                                                                         </DataTrigger>
                                                                                     </Style.Triggers>
                                                                                 </Style>

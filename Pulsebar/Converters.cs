@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using Pulsebar.Monitoring;
 using Pulsebar.Windows;
 
 namespace Pulsebar.Converters
@@ -102,7 +103,7 @@ namespace Pulsebar.Converters
         }
     }
 
-    public class LoadSeverityColorConverter : IValueConverter
+    public class LoadSeverityColorConverter : IMultiValueConverter
     {
         private static readonly SolidColorBrush _low = MakeBrush("#3E8F4C");
         private static readonly SolidColorBrush _medium = MakeBrush("#B4791E");
@@ -115,9 +116,27 @@ namespace Pulsebar.Converters
             return _brush;
         }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            double _value = value is double ? (double)value : 0d;
+            if (values == null || values.Length < 2)
+            {
+                return _low;
+            }
+
+            MetricKey _key = values[0] is MetricKey ? (MetricKey)values[0] : MetricKey.CPULoad;
+            double _value = values[1] is double ? (double)values[1] : 0d;
+
+            bool _isGpuLoad = _key == MetricKey.GPUCoreLoad || _key == MetricKey.GPUVRAMLoad;
+
+            if (_isGpuLoad)
+            {
+                if (_value >= 98d)
+                {
+                    return _medium;
+                }
+
+                return _low;
+            }
 
             if (_value >= 85d)
             {
@@ -132,7 +151,7 @@ namespace Pulsebar.Converters
             return _low;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             return null;
         }
