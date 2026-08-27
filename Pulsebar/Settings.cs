@@ -363,7 +363,7 @@ namespace Pulsebar.Framework
             }
         }
 
-        private int _sidebarWidth { get; set; } = 180;
+        private int _sidebarWidth { get; set; } = 260;
 
         [JsonProperty]
         public int SidebarWidth
@@ -397,7 +397,7 @@ namespace Pulsebar.Framework
             }
         }
 
-        private string _bgColor { get; set; } = "#000000";
+        private string _bgColor { get; set; } = "#1D242C";
 
         [JsonProperty]
         public string BGColor
@@ -414,7 +414,7 @@ namespace Pulsebar.Framework
             }
         }
 
-        private double _bgOpacity { get; set; } = 0.85d;
+        private double _bgOpacity { get; set; } = 0.92d;
 
         [JsonProperty]
         public double BGOpacity

@@ -326,7 +326,7 @@
                 <Setter Property="Margin" Value="0" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="Foreground" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontColor, Mode=OneWay}" />
-                <Setter Property="FontSize" Value="30" />
+                <Setter Property="FontSize" Value="26" />
                 <Setter Property="FontWeight" Value="Bold" />
             </Style>
 
@@ -359,8 +359,8 @@
                 <Setter Property="Background">
                     <Setter.Value>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Offset="0.0" Color="#14FFFFFF" />
-                            <GradientStop Offset="0.35" Color="#00FFFFFF" />
+                            <GradientStop Offset="0.0" Color="#26FFFFFF" />
+                            <GradientStop Offset="0.45" Color="#00FFFFFF" />
                             <GradientStop Offset="1.0" Color="#00000000" />
                         </LinearGradientBrush>
                     </Setter.Value>
