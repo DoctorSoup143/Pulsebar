@@ -150,7 +150,7 @@
                     </DockPanel>
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsBackgroundColor}" />
-                        <xctk:ColorPicker Margin="0,6" IsEnabled="{Binding Path=AutoBGColor, Mode=OneWay, Converter={StaticResource BoolInverseConverter}}" SelectedColor="{Binding Path=BGColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsBackgroundColorTooltip}" />
+                        <xctk:ColorPicker Margin="0,6" Style="{StaticResource SettingsColorPicker}" IsEnabled="{Binding Path=AutoBGColor, Mode=OneWay, Converter={StaticResource BoolInverseConverter}}" SelectedColor="{Binding Path=BGColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsBackgroundColorTooltip}" />
                     </DockPanel>
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsBackgroundOpacity}" />
@@ -172,11 +172,11 @@
                     </DockPanel>
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsFontColor}" />
-                        <xctk:ColorPicker Margin="0,6" SelectedColor="{Binding Path=FontColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsFontColorTooltip}" />
+                        <xctk:ColorPicker Margin="0,6" Style="{StaticResource SettingsColorPicker}" SelectedColor="{Binding Path=FontColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsFontColorTooltip}" />
                     </DockPanel>
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsAlertFontColor}" />
-                        <xctk:ColorPicker Margin="0,6" SelectedColor="{Binding Path=AlertFontColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAlertFontColorTooltip}" />
+                        <xctk:ColorPicker Margin="0,6" Style="{StaticResource SettingsColorPicker}" SelectedColor="{Binding Path=AlertFontColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="{x:Static frame:Resources.SettingsAlertFontColorTooltip}" />
                     </DockPanel>
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsAlertBlink}" />
