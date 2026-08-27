@@ -1,7 +1,8 @@
 name: Release
 
-# Builds a self-contained Windows x64 build of Pulsebar and attaches it to a
-# GitHub Release whenever a version tag (e.g. v1.0.0) is pushed.
+# Builds a self-contained Windows x64 build of Pulsebar, packages it as both
+# a portable zip and an Inno Setup installer, and attaches both to a GitHub
+# Release whenever a version tag (e.g. v1.0.0) is pushed.
 
 on:
   push:
@@ -40,9 +41,17 @@ jobs:
           $version = "${{ github.ref_name }}"
           Compress-Archive -Path publish\* -DestinationPath "Pulsebar-$version-win-x64.zip"
 
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}" -replace '^v', ''
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$version" installer\Pulsebar.iss
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: Pulsebar-*-win-x64.zip
+          files: |
+            Pulsebar-*-win-x64.zip
+            installer-output/Pulsebar-Setup-*.exe
           generate_release_notes: true
           draft: false
