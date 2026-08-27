@@ -242,11 +242,6 @@ namespace Pulsebar
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (Wpf.Ui.Controls.WindowBackdrop.IsSupported(Wpf.Ui.Controls.WindowBackdropType.Mica))
-            {
-                Wpf.Ui.Controls.WindowBackdrop.ApplyBackdrop(this, Wpf.Ui.Controls.WindowBackdropType.Mica);
-            }
-
             await Initialize();
         }
 
