@@ -8,11 +8,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Pulsebar")]
-[assembly: AssemblyDescription("Pulsebar")]
+[assembly: AssemblyDescription("A modern sidebar for Windows desktop that displays hardware diagnostic information.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Pulsebar")]
+[assembly: AssemblyCompany("DoctorSoup143")]
 [assembly: AssemblyProduct("Pulsebar")]
-[assembly: AssemblyCopyright("Copyright © 2021")]
+[assembly: AssemblyCopyright("Copyright © 2026 DoctorSoup143")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

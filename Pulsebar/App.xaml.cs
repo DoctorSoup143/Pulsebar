@@ -206,11 +206,6 @@ namespace Pulsebar
 			_sidebar.AppBarHide();
 		}
 
-		private void Donate_Click(object sender, RoutedEventArgs e)
-		{
-			Process.Start(new ProcessStartInfo(ConfigurationManager.AppSettings["DonateURL"]) { UseShellExecute = true });
-		}
-
 		private void GitHub_Click(object sender, RoutedEventArgs e)
 		{
 			Process.Start(new ProcessStartInfo(ConfigurationManager.AppSettings["RepoURL"]) { UseShellExecute = true });

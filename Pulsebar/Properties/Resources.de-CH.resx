@@ -986,7 +986,7 @@
     <comment>Title of the update error popup</comment>
   </data>
   <data name="UpdateSuccessText" xml:space="preserve">
-    <value>Sie verwenden nun die neuste Version von Sidebar Diagnostics.</value>
+    <value>Sie verwenden nun die neuste Version von Pulsebar.</value>
     <comment>Text of the update success popup</comment>
   </data>
   <data name="UpdateTitle" xml:space="preserve">
