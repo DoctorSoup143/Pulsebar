@@ -138,6 +138,42 @@ namespace Pulsebar.Converters
         }
     }
 
+    public class DriveSeverityColorConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush _ok = MakeBrush("#3E8F4C");
+        private static readonly SolidColorBrush _low = MakeBrush("#B4791E");
+        private static readonly SolidColorBrush _critical = MakeBrush("#B23A2E");
+
+        private static SolidColorBrush MakeBrush(string hex)
+        {
+            SolidColorBrush _brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+            _brush.Freeze();
+            return _brush;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double _usedPercent = value is double ? (double)value : 0d;
+
+            if (_usedPercent >= 95d)
+            {
+                return _critical;
+            }
+
+            if (_usedPercent >= 90d)
+            {
+                return _low;
+            }
+
+            return _ok;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
+
     public class FontToSpaceConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

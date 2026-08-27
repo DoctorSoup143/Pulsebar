@@ -10,6 +10,7 @@
 
             <conv:FontToSpaceConverter x:Key="FontToSpaceConverter" />
             <conv:LoadSeverityColorConverter x:Key="LoadSeverityColorConverter" />
+            <conv:DriveSeverityColorConverter x:Key="DriveSeverityColorConverter" />
 
             <Style x:Key="SidebarWindow" TargetType="{x:Type win:AppBarWindow}">
                 <Setter Property="Title" Value="{x:Static frame:Resources.Sidebar}" />
@@ -210,7 +211,7 @@
                 <Setter Property="Margin" Value="0,4" />
                 <Setter Property="Height" Value="4" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="Foreground" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=FontColor, Mode=OneWay}" />
+                <Setter Property="Foreground" Value="{Binding Path=Value, Mode=OneWay, Converter={StaticResource DriveSeverityColorConverter}}" />
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="Template">
                     <Setter.Value>
@@ -218,11 +219,6 @@
                             <Border Name="PART_Track" CornerRadius="4" Background="#20808080" BorderThickness="0">
                                 <Border Name="PART_Indicator" CornerRadius="4" Background="{TemplateBinding Foreground}" BorderThickness="0" HorizontalAlignment="Left" />
                             </Border>
-                            <ControlTemplate.Triggers>
-                                <DataTrigger Binding="{Binding Path=IsAlert, Mode=OneWay}" Value="True">
-                                    <Setter Property="Foreground" Value="{Binding Source={x:Static frame:Settings.Instance}, Path=AlertFontColor, Mode=OneWay}" />
-                                </DataTrigger>
-                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
