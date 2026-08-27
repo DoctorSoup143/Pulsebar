@@ -964,6 +964,10 @@
     <value>Initial Setup</value>
     <comment>Title of the initial setup page</comment>
   </data>
+  <data name="UpdateAvailableText" xml:space="preserve">
+    <value>Pulsebar {0} is available. Click Update in the tray menu to view it.</value>
+    <comment>Balloon tip shown when a newer GitHub release is found; {0} is the version tag</comment>
+  </data>
   <data name="UpdateErrorFatalText" xml:space="preserve">
     <value>A fatal error occurred while trying to update. Auto update is now disabled.</value>
     <comment>Fatal text of the update error popup</comment>

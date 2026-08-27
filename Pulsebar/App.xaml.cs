@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Hardcodet.Wpf.TaskbarNotification;
@@ -42,6 +43,12 @@ namespace Pulsebar
 			TrayIcon = (TaskbarIcon)FindResource("TrayIcon");
 			TrayIcon.ToolTipText = string.Format("{0} v{1}", Framework.Resources.AppName, _vstring);
 			TrayIcon.TrayContextMenuOpen += TrayIcon_TrayContextMenuOpen;
+
+			// UPDATE CHECK
+			if (Framework.Settings.Instance.AutoUpdate)
+			{
+				_ = CheckForUpdateAsync(_version);
+			}
 
 			// START APP
 			if (Framework.Settings.Instance.InitialSetup)
@@ -213,7 +220,23 @@ namespace Pulsebar
 
 		private void Update_Click(object sender, RoutedEventArgs e)
 		{
-			Process.Start(new ProcessStartInfo(ConfigurationManager.AppSettings["RepoURL"]) { UseShellExecute = true });
+			string _url = !string.IsNullOrEmpty(_updateUrl) ? _updateUrl : ConfigurationManager.AppSettings["RepoURL"] + "/releases";
+
+			Process.Start(new ProcessStartInfo(_url) { UseShellExecute = true });
+		}
+
+		private static async Task CheckForUpdateAsync(Version currentVersion)
+		{
+			UpdateChecker.UpdateInfo _info = await UpdateChecker.CheckForUpdateAsync(currentVersion);
+
+			if (_info == null)
+			{
+				return;
+			}
+
+			_updateUrl = _info.HtmlUrl;
+
+			TrayIcon.ShowBalloonTip(Framework.Resources.AppName, string.Format(Framework.Resources.UpdateAvailableText, _info.TagName), BalloonIcon.Info);
 		}
 
 		private void Close_Click(object sender, EventArgs e)
@@ -255,5 +278,7 @@ namespace Pulsebar
 		public static TaskbarIcon TrayIcon { get; set; }
 
 		internal static bool _reloading { get; set; } = false;
+
+		private static string _updateUrl { get; set; }
 	}
 }

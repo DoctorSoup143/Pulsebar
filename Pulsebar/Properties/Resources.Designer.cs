@@ -2122,6 +2122,15 @@ namespace Pulsebar.Framework {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pulsebar {0} is available. Click Update in the tray menu to view it..
+        /// </summary>
+        public static string UpdateAvailableText {
+            get {
+                return ResourceManager.GetString("UpdateAvailableText", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to A fatal error occurred while trying to update. Auto update is now disabled..
         /// </summary>
         public static string UpdateErrorFatalText {
