@@ -1404,3 +1404,232 @@ Controller + human user step, same as prior tasks. This step also requires the c
 git add Pulsebar/FluentStyle.xaml Pulsebar/Settings.cs
 git commit -m "Tighten top spacing, match icon size to title text, bold titles, real transparency"
 ```
+
+---
+
+### Task 15: Dark-theme the Settings/Setup/Update/ChangeLog windows, widen Settings
+
+**Why this task exists:** the user asked to restyle the Settings dialog to match the new design and make it bigger. Investigation found the entire non-sidebar half of the app (`Settings.xaml`, `Graph.xaml`, `Setup.xaml`, `Update.xaml`, `ChangeLog.xaml`) shares one window chrome, `FlatWindowStyle` in `Pulsebar/FlatStyle.xaml`, which has a hardcoded `Background="#FFFFFF"` — untouched by every prior task in this plan. It's a white dialog next to a dark navy sidebar.
+
+**Scope decision, stated explicitly rather than silently applied:** native WPF/Xceed-toolkit controls (`ComboBox`, `TextBox`, `CheckBox`'s own checkbox glyph, `Slider`, `ColorPicker`, `DataGrid` rows, `ListView` rows) paint their own light background by default, independent of the window behind them — darkening the window doesn't change that, and a full custom-templated dark re-theme of every one of those control types is a much larger, separate effort (comparable in size to this entire plan so far) that wasn't asked for. This task darkens the window chrome and every place text renders *directly on the window background* (labels, checkbox captions, setup/update/changelog descriptive text) — native input controls keep their default light appearance, floating on the new dark window. That's a real, common "partial dark mode" look, not a bug.
+
+**Files:**
+- Modify: `Pulsebar/Settings.xaml` (window `Width`)
+- Modify: `Pulsebar/FlatStyle.xaml` (`FlatWindowStyle`, `WindowButton`)
+- Modify: `Pulsebar/App.xaml` (`SettingGrid`, `SettingTitle`, `SetupTitle`, `SetupSubtitle`, `UpdateTitle`, `ChangeLogBullet`, `MonitorDetailsBorder`)
+
+**Interfaces:** none new — pure value/setter changes to existing styles.
+
+- [ ] **Step 1: Widen the Settings window**
+
+In `Pulsebar/Settings.xaml`, find:
+
+```xml
+        Width="420"
+        SizeToContent="Height"
+```
+
+Change `Width` to `560` (leave `SizeToContent="Height"` as-is — the window still grows to fit its content vertically, this only gives it more horizontal room):
+
+```xml
+        Width="560"
+        SizeToContent="Height"
+```
+
+- [ ] **Step 2: Dark-theme the shared window chrome**
+
+In `Pulsebar/FlatStyle.xaml`, find `FlatWindowStyle`:
+
+```xml
+    <Style x:Key="FlatWindowStyle" TargetType="{x:Type style:FlatWindow}">
+        <Setter Property="WindowStyle" Value="None" />
+        <Setter Property="ResizeMode" Value="NoResize" />
+        <Setter Property="Background" Value="#FFFFFF" />
+        <Setter Property="BorderBrush" Value="#BDC3C7" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="AllowsTransparency" Value="True" />
+```
+
+Change `Background` and `BorderBrush`:
+
+```xml
+    <Style x:Key="FlatWindowStyle" TargetType="{x:Type style:FlatWindow}">
+        <Setter Property="WindowStyle" Value="None" />
+        <Setter Property="ResizeMode" Value="NoResize" />
+        <Setter Property="Background" Value="#12141F" />
+        <Setter Property="BorderBrush" Value="#2A3040" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="AllowsTransparency" Value="True" />
+```
+
+This affects every window built on `FlatWindowStyle` — `Settings.xaml`, `Graph.xaml`, `Setup.xaml`, `Update.xaml`, `ChangeLog.xaml` — which is why Steps 4-6 below fix the now-invisible-on-dark text colors in the latter three; skipping those steps would leave those windows readable-white-text-on-white-background-turned-unreadable.
+
+- [ ] **Step 3: Re-tint the primary button accent**
+
+In `Pulsebar/FlatStyle.xaml`, find `WindowButton`:
+
+```xml
+    <Style x:Key="WindowButton" TargetType="{x:Type Button}">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="500" />
+        <Setter Property="Margin" Value="10,0,0,0" />
+        <Setter Property="Padding" Value="20,8" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="Background" Value="#3498DB" />
+```
+
+and, further down in the same style's `Style.Triggers`:
+
+```xml
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#2980B9" />
+            </Trigger>
+```
+
+Change the two blue hex values to the app's teal accent (matching `SectionDot`/`LoadSeverityColorConverter`'s low-severity green family is a different color; use the same teal already established as the app's one fixed accent color, `#3FBBA4`, and a proportionally darker shade for hover, `#2FA08C`):
+
+```xml
+        <Setter Property="Background" Value="#3FBBA4" />
+```
+
+```xml
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#2FA08C" />
+            </Trigger>
+```
+
+(`SuccessButton`/`ErrorButton`/`NeutralButton` are `BasedOn="{StaticResource WindowButton}"` but each overrides its own `Background`/hover — leave those three alone, they're intentionally semantic green/red/gray, not the primary accent.)
+
+- [ ] **Step 4: Light text for labels/checkboxes sitting directly on the window background**
+
+In `Pulsebar/App.xaml`, inside `SettingGrid`'s `Style.Resources`, find the `Label` and `CheckBox` nested styles:
+
+```xml
+                    <Style TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
+                        <Setter Property="Margin" Value="0,5,15,0" />
+                        <Setter Property="MinWidth" Value="60" />
+                    </Style>
+                    <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type FrameworkElement}}" />
+                    <Style TargetType="{x:Type xctk:CheckComboBox}" BasedOn="{StaticResource {x:Type FrameworkElement}}" />
+                    <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type FrameworkElement}}" />
+                    <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
+                        <Setter Property="Margin" Value="0,6,0,0" />
+                    </Style>
+```
+
+Add a `Foreground` setter to `Label` and `CheckBox` only (`ComboBox`/`CheckComboBox`/`TextBox` paint their own native light surface — a `Foreground` override there wouldn't be wrong exactly, but it's out of this task's scope per the decision above, so leave those three lines untouched):
+
+```xml
+                    <Style TargetType="{x:Type Label}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
+                        <Setter Property="Margin" Value="0,5,15,0" />
+                        <Setter Property="MinWidth" Value="60" />
+                        <Setter Property="Foreground" Value="#E8EAF0" />
+                    </Style>
+                    <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type FrameworkElement}}" />
+                    <Style TargetType="{x:Type xctk:CheckComboBox}" BasedOn="{StaticResource {x:Type FrameworkElement}}" />
+                    <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type FrameworkElement}}" />
+                    <Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type FrameworkElement}}">
+                        <Setter Property="Margin" Value="0,6,0,0" />
+                        <Setter Property="Foreground" Value="#E8EAF0" />
+                    </Style>
+```
+
+Then find `SettingTitle`:
+
+```xml
+            <Style x:Key="SettingTitle" TargetType="{x:Type StackPanel}">
+                <Setter Property="Orientation" Value="Vertical" />
+                <Setter Property="Margin" Value="0,0,0,10" />
+                <Style.Resources>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Margin" Value="0,0,0,4" />
+                    </Style>
+                </Style.Resources>
+            </Style>
+```
+
+Add a `Foreground` setter to the nested `TextBlock` style:
+
+```xml
+            <Style x:Key="SettingTitle" TargetType="{x:Type StackPanel}">
+                <Setter Property="Orientation" Value="Vertical" />
+                <Setter Property="Margin" Value="0,0,0,10" />
+                <Style.Resources>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Margin" Value="0,0,0,4" />
+                        <Setter Property="Foreground" Value="#E8EAF0" />
+                    </Style>
+                </Style.Resources>
+            </Style>
+```
+
+- [ ] **Step 5: Fix Setup/Update/ChangeLog text colors**
+
+Still in `Pulsebar/App.xaml`, find these four styles (they are not adjacent — `SetupTitle`/`SetupSubtitle` are together, `UpdateTitle` and `ChangeLogBullet` are further down, separated by `UpdateProgress`/`ChangeLogContent`/`ChangeLogTitle`):
+
+```xml
+            <Style x:Key="SetupTitle" TargetType="{x:Type Label}">
+                <Setter Property="Margin" Value="0,10,0,0" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Foreground" Value="#333" />
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="SetupSubtitle" TargetType="{x:Type TextBlock}">
+                <Setter Property="Margin" Value="0,10" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="MaxWidth" Value="220" />
+                <Setter Property="Foreground" Value="#111" />
+```
+
+```xml
+            <Style x:Key="UpdateTitle" TargetType="{x:Type Label}">
+                <Setter Property="Margin" Value="10" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Foreground" Value="#333" />
+```
+
+```xml
+            <Style x:Key="ChangeLogBullet" TargetType="{x:Type TextBlock}">
+                <Setter Property="Margin" Value="0,0,8,4" />
+                <Setter Property="Foreground" Value="#333" />
+```
+
+Change each `Foreground` value: `SetupTitle`'s `#333` → `#E8EAF0`; `SetupSubtitle`'s `#111` → `#B8BFCC` (a slightly muted light tone, since this one is explicitly a *subtitle*/secondary-text role); `UpdateTitle`'s `#333` → `#E8EAF0`; `ChangeLogBullet`'s `#333` → `#E8EAF0` (this last one is inherited by `ChangeLogLine` via `BasedOn`, and by `ChangeLogTitle` via its own separate `BasedOn="{StaticResource UpdateTitle}"` — you do not need to touch `ChangeLogLine` or `ChangeLogTitle` directly, both inherit correctly).
+
+Leave `UpdateProgress`'s inner `Label` (`Foreground="#333333"`, the percentage-complete text drawn on top of the progress bar's own green fill) untouched — that text sits on the bar's colored indicator, not the window background, so it's a correctly-scoped exclusion, not a miss.
+
+- [ ] **Step 6: Darken the hardware-details panel background**
+
+In `Pulsebar/App.xaml`, find `MonitorDetailsBorder`:
+
+```xml
+            <Style x:Key="MonitorDetailsBorder" TargetType="{x:Type Border}">
+                <Setter Property="Background" Value="#ECF0F1" />
+```
+
+Change to:
+
+```xml
+            <Style x:Key="MonitorDetailsBorder" TargetType="{x:Type Border}">
+                <Setter Property="Background" Value="#1A1F2E" />
+```
+
+(`MonitorGrid`'s `SystemColors.HighlightBrushKey` override, `#E1E7E9`, is deliberately left untouched — it's a selection-highlight color shown against the `DataGrid`'s own native white rows, which are themselves out of this task's scope per the decision above; changing just the highlight color while the rows stay white would look like an unrelated, disconnected change.)
+
+- [ ] **Step 7: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`.
+
+- [ ] **Step 8: Run and screenshot**
+
+Controller + human user step, same as prior tasks: launch the exe, open Settings (wider, dark chrome, light labels/checkboxes, native-light input controls), open the hardware-details expander within Settings (dark panel background), and if convenient also check Setup/Update/ChangeLog are still legible (these are harder to trigger on demand — a visual code read of the diff may have to substitute if the human user can't easily reach those screens).
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add Pulsebar/Settings.xaml Pulsebar/FlatStyle.xaml Pulsebar/App.xaml
+git commit -m "Dark-theme the Settings/Setup/Update/ChangeLog window chrome, widen Settings"
+```
