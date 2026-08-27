@@ -50,4 +50,17 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
+; shellexec is required here: Pulsebar.exe's manifest requests
+; requireAdministrator. Setup runs elevated (PrivilegesRequired=admin above),
+; but the default [Run] launch mechanism is CreateProcess, which simply
+; inherits whatever token the parent happens to hold at that moment rather
+; than re-checking/re-requesting elevation for the child. If Setup's own
+; elevation was lost or never granted a full admin token when this line
+; fires (e.g. UAC policy quirks, over-the-shoulder credential elevation,
+; or other non-default configurations), CreateProcess fails outright with
+; ERROR_ELEVATION_REQUIRED ("The requested operation requires elevation")
+; and Pulsebar never starts. ShellExecute (the shellexec flag) instead lets
+; Windows itself show a UAC consent/credential prompt for Pulsebar.exe when
+; needed, so the launch succeeds (or fails with a clear, actionable UAC
+; prompt) instead of hard-failing silently.
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent shellexec
