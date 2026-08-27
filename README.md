@@ -1,54 +1,50 @@
-<h1><img src="https://cdn.rawgit.com/ArcadeRenegade/SidebarDiagnostics/master/sidebar.ico" width="64" height="64" /> Sidebar Diagnostics</h1>
+<h1><img src="Pulsebar/Sidebar.ico" width="48" height="48" align="top" /> Pulsebar</h1>
 
-A simple sidebar for Windows desktop that displays hardware diagnostic information.
+A modern, Fluent-styled sidebar for Windows desktop that displays live hardware diagnostic information: CPU, GPU, RAM, drives, and network.
+
+Pulsebar is a modernized fork of [Sidebar Diagnostics](https://github.com/ArcadeRenegade/SidebarDiagnostics) by ArcadeRenegade — rebuilt on .NET 10 with a reskinned dark/teal UI, a redesigned Settings window, and a rewritten Monitors tab.
 
 ### Download
 
-Go to the <a href="https://github.com/ArcadeRenegade/SidebarDiagnostics/releases">releases tab</a>.
+Grab the latest build from the [Releases page](https://github.com/DoctorSoup143/Pulsebar/releases). Download the zip, extract it anywhere, and run `Pulsebar.exe`.
+
+Pulsebar needs to run as administrator to read most hardware sensors.
 
 ### Features
-* Monitors CPU, RAM, GPU, network, and logical drives.
+
+* Monitors CPU, RAM, GPU, network, and logical drives, with color-coded severity (green/yellow/red) on load and drive-space bars.
 * Create graphs for all metrics.
-* Allows for lots of customization.
-* Allows alerts for various values.
-* Allows binding hotkeys.
+* Deep customization: dock edge, screen, sizing, colors, transparency, fonts, and more.
+* Alerts for values crossing configurable thresholds.
+* Bindable hotkeys for show/hide/reload/etc.
 * Supports monitors of all DPI types.
-* Has a clock at the top.
+* Clock and date display at the top.
 
-### Important
+### CPU clock & temperature
 
-If you are changing your screen's DPI settings, <a href="https://github.com/ArcadeRenegade/SidebarDiagnostics/wiki/DPI-Settings">view this page!</a>
+CPU clock speed and temperature require the [PawnIO](https://pawnio.eu) kernel driver, which the underlying hardware-monitoring library uses for privileged sensor access. If it isn't installed, Pulsebar's Settings → Monitors tab shows a notice with a one-click link to the official installer. Nothing is installed silently — it's always your call.
 
-### Author Note
+### Requirements
 
-This software will always be free on GitHub. If you really like it please consider donating. I'd appreciate it!
-Thanks.
+* Windows 10/11
+* [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) (x64), unless using a self-contained release build
 
-https://www.paypal.me/arcaderenegade
+### Building from source
 
-### Supported OS
+```bash
+dotnet build Pulsebar/Pulsebar.csproj -c Release
+```
 
-* Windows 10
-* Windows 8.1
-* Windows 8
-* Windows 7
+The build output is a self-contained WPF app under `Pulsebar/bin/Release/net10.0-windows/`.
+
+### Credits
+
+* Originally built as [Sidebar Diagnostics](https://github.com/ArcadeRenegade/SidebarDiagnostics) by ArcadeRenegade.
+* Hardware data provided by [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor).
+* Privileged sensor access via [PawnIO](https://pawnio.eu).
 
 ### License
 
-GNU GENERAL PUBLIC LICENSE
+Pulsebar is licensed under the [GNU General Public License v3.0](LICENSE.md), the same license as the original Sidebar Diagnostics project it's built on. If you fork or redistribute this project, please keep it under GPLv3 and link back here.
 
-Please provide a link to this GitHub repository if reuploading. Thank you.
-
-### Info
-
-Written in C# .NET WPF.
-
-Currently compiled in <a href="https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net472-web-installer">.NET 4.7.2</a>.
-
-You will need to run it as administrator.
-
-Data provided by <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">Libre Hardware Monitor</a>. Please thank the library's contributors for their support!
-
-<img src="http://i.imgur.com/70LkdwO.png" />
-
-<img src="http://i.imgur.com/mkrO6W6.png" />
+Copyright © 2026 DoctorSoup143. Based on Sidebar Diagnostics, Copyright © ArcadeRenegade.
