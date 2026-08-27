@@ -1974,3 +1974,44 @@ Expected: `0 Error(s)`.
 - [ ] **Step 2: Human-assisted verification**
 
 Controller + human user step: launch the app, and over time (or by triggering load artificially, e.g. running a CPU/GPU-intensive task) confirm: CPU/RAM load bars still shift green→amber→red at the original 60/85 thresholds (unchanged by Task 18); GPU load bar stays green up to 98% and only turns yellow above that, never red; drive bars are green normally, yellow under 10% free space, red under 5% free space; the sidebar is visibly narrower; drive bars are visually the same height as CPU/RAM/GPU bars.
+
+---
+
+### Task 20: Widen the Settings window's numeric text fields
+
+**Why this task exists:** user feedback — the small numeric `TextBox`es paired with sliders in Settings (UI scale, X/Y offset, polling interval, sidebar width, background opacity) are cramped at `Width="50"`; some of these can show values like `-2000` or `5000`, which barely fit.
+
+**Files:**
+- Modify: `Pulsebar/Settings.xaml`
+
+- [ ] **Step 1: Widen the six slider-paired numeric fields**
+
+In `Pulsebar/Settings.xaml`, there are 6 `TextBox` elements matching this pattern (one each for UI Scale, Horizontal Offset, Vertical Offset, Polling Interval, Sidebar Width, Background Opacity — find each by its `Binding ElementName=...Slider` reference):
+
+```xml
+                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=...
+```
+
+Change every one of the 6 occurrences of `Width="50"` on these specific `TextBox` elements to `Width="65"`. Do this as 6 separate, deliberate edits (find each by its distinct `ElementName` reference), not a blind global find-and-replace — confirm the count is exactly 6 before and after.
+
+- [ ] **Step 2: Widen the Monitors tab's integer option field**
+
+In the same file, find (inside the Monitors tab's `Options` section, the `System.Int32` branch of the `ConfigParam` template):
+
+```xml
+                                                                                        <TextBox Style="{StaticResource SettingsTextBox}" Width="80" HorizontalAlignment="Left" Text="{Binding Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntConverter}}" ToolTip="{Binding Path=Tooltip, Mode=OneTime}" />
+```
+
+Change `Width="80"` to `Width="90"`.
+
+- [ ] **Step 3: Build**
+
+Run: `dotnet build Pulsebar.sln`
+Expected: `0 Error(s)`.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add Pulsebar/Settings.xaml
+git commit -m "Widen the Settings window's numeric text fields"
+```
