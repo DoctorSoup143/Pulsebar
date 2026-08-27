@@ -89,28 +89,28 @@
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsUIScale}" />
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=UIScaleSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <TextBox DockPanel.Dock="Right" Width="65" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=UIScaleSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
                             <Slider x:Name="UIScaleSlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=UIScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0.5" Maximum="3.0" TickFrequency="0.1" LargeChange="0.5" ToolTip="{x:Static frame:Resources.SettingsUIScaleTooltip}" />
                         </DockPanel>
                     </DockPanel>
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsHorizontalOffset}" />
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=XOffsetSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <TextBox DockPanel.Dock="Right" Width="65" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=XOffsetSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
                             <Slider x:Name="XOffsetSlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=XOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="-2000" Maximum="2000" TickFrequency="1" LargeChange="1000" ValueChanged="OffsetSlider_ValueChanged" ToolTip="{x:Static frame:Resources.SettingsHorizontalOffsetTooltip}" />
                         </DockPanel>
                     </DockPanel>
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsVerticalOffset}" />
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=YOffsetSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <TextBox DockPanel.Dock="Right" Width="65" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=YOffsetSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
                             <Slider x:Name="YOffsetSlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=YOffset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="-2000" Maximum="2000" TickFrequency="1" LargeChange="1000" ValueChanged="OffsetSlider_ValueChanged" ToolTip="{x:Static frame:Resources.SettingsVerticalOffsetTooltip}" />
                         </DockPanel>
                     </DockPanel>
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsPollingInterval}" />
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=PollingIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <TextBox DockPanel.Dock="Right" Width="65" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=PollingIntervalSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
                             <Slider x:Name="PollingIntervalSlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=PollingInterval, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="100" Maximum="5000" TickFrequency="100" LargeChange="1000" ToolTip="{x:Static frame:Resources.SettingsPollingIntervalTooltip}" />
                         </DockPanel>
                     </DockPanel>
@@ -140,7 +140,7 @@
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsSidebarWidth}" />
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=SidebarWidthSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <TextBox DockPanel.Dock="Right" Width="65" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=SidebarWidthSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
                             <Slider x:Name="SidebarWidthSlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=SidebarWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="100" Maximum="300" TickFrequency="5" LargeChange="100" ToolTip="{x:Static frame:Resources.SettingsSidebarWidthTooltip}" />
                         </DockPanel>
                     </DockPanel>
@@ -155,7 +155,7 @@
                     <DockPanel Style="{StaticResource SettingsRow}">
                         <Label Style="{StaticResource SettingsLabel}" Content="{x:Static frame:Resources.SettingsBackgroundOpacity}" />
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="50" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=BGOpacitySlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
+                            <TextBox DockPanel.Dock="Right" Width="65" Margin="10,0,0,0" Style="{StaticResource SettingsTextBox}" Text="{Binding ElementName=BGOpacitySlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="NumberBox_PreviewTextInput" />
                             <Slider x:Name="BGOpacitySlider" Style="{StaticResource SettingsSlider}" Value="{Binding Path=BGOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0.01" Maximum="1.0" LargeChange="0.1" TickFrequency="0.01" ToolTip="{x:Static frame:Resources.SettingsBackgroundOpacityTooltip}" />
                         </DockPanel>
                     </DockPanel>
@@ -287,7 +287,7 @@
                                                                                 <Setter.Value>
                                                                                     <StackPanel>
                                                                                         <TextBlock Text="{Binding Path=Name, Mode=OneTime}" Foreground="#B8BFCC" Margin="0,0,0,4" />
-                                                                                        <TextBox Style="{StaticResource SettingsTextBox}" Width="80" HorizontalAlignment="Left" Text="{Binding Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntConverter}}" ToolTip="{Binding Path=Tooltip, Mode=OneTime}" />
+                                                                                        <TextBox Style="{StaticResource SettingsTextBox}" Width="90" HorizontalAlignment="Left" Text="{Binding Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource IntConverter}}" ToolTip="{Binding Path=Tooltip, Mode=OneTime}" />
                                                                                     </StackPanel>
                                                                                 </Setter.Value>
                                                                             </Setter>
