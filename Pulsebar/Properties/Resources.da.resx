@@ -385,6 +385,10 @@
     <value>Indstillinger</value>
     <comment>Settings taskbar menu item</comment>
   </data>
+  <data name="SettingsDisplayTab" xml:space="preserve">
+    <value>Visning</value>
+    <comment>Title of the settings display tab</comment>
+  </data>
   <data name="Show" xml:space="preserve">
     <value>Vis</value>
     <comment>Show taskbar menu item</comment>

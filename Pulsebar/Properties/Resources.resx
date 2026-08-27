@@ -620,6 +620,10 @@
     <value>Format of the date below the clock.</value>
     <comment>Settings date format tooltip</comment>
   </data>
+  <data name="SettingsDisplayTab" xml:space="preserve">
+    <value>Display</value>
+    <comment>Title of the settings display tab</comment>
+  </data>
   <data name="SettingsDock" xml:space="preserve">
     <value>Dock</value>
     <comment>Dock settings label</comment>

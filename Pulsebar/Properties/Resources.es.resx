@@ -621,6 +621,10 @@
     <value>Formato de la fecha debajo del reloj.</value>
     <comment>Settings date format tooltip</comment>
   </data>
+  <data name="SettingsDisplayTab" xml:space="preserve">
+    <value>Pantalla</value>
+    <comment>Title of the settings display tab</comment>
+  </data>
   <data name="SettingsDock" xml:space="preserve">
     <value>Acoplar</value>
     <comment>Dock settings label</comment>

@@ -621,6 +621,10 @@
     <value>نسق التوقيت أسفل الساعة</value>
     <comment>Settings date format tooltip</comment>
   </data>
+  <data name="SettingsDisplayTab" xml:space="preserve">
+    <value>العرض</value>
+    <comment>Title of the settings display tab</comment>
+  </data>
   <data name="SettingsDock" xml:space="preserve">
     <value>إرساء</value>
     <comment>Dock settings label</comment>

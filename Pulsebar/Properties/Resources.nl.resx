@@ -385,6 +385,10 @@
     <value>Zijbalk</value>
     <comment>Settings taskbar menu item</comment>
   </data>
+  <data name="SettingsDisplayTab" xml:space="preserve">
+    <value>Weergave</value>
+    <comment>Title of the settings display tab</comment>
+  </data>
   <data name="Show" xml:space="preserve">
     <value>Tonen</value>
     <comment>Show taskbar menu item</comment>

@@ -621,6 +621,10 @@
     <value>Päivämäärämuoto kellon alapuolella.</value>
     <comment>Settings date format tooltip</comment>
   </data>
+  <data name="SettingsDisplayTab" xml:space="preserve">
+    <value>Näyttö</value>
+    <comment>Title of the settings display tab</comment>
+  </data>
   <data name="SettingsDock" xml:space="preserve">
     <value>Telakointi</value>
     <comment>Dock settings label</comment>

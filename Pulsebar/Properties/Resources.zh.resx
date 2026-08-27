@@ -620,6 +620,10 @@
     <value>时钟下方的日期格式。</value>
     <comment>Settings date format tooltip</comment>
   </data>
+	<data name="SettingsDisplayTab" xml:space="preserve">
+    <value>显示</value>
+    <comment>Title of the settings display tab</comment>
+  </data>
 	<data name="SettingsDock" xml:space="preserve">
     <value>停靠</value>
     <comment>Dock settings label</comment>

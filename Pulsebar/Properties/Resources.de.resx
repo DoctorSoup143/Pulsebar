@@ -385,6 +385,10 @@
     <value>Einstellungen</value>
     <comment>Settings taskbar menu item</comment>
   </data>
+  <data name="SettingsDisplayTab" xml:space="preserve">
+    <value>Anzeige</value>
+    <comment>Title of the settings display tab</comment>
+  </data>
   <data name="Show" xml:space="preserve">
     <value>Anzeigen</value>
     <comment>Show taskbar menu item</comment>

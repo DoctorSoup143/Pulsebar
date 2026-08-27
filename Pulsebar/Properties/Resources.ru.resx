@@ -621,6 +621,10 @@
     <value>Формат даты под часами.</value>
     <comment>Settings date format tooltip</comment>
   </data>
+  <data name="SettingsDisplayTab" xml:space="preserve">
+    <value>Отображение</value>
+    <comment>Title of the settings display tab</comment>
+  </data>
   <data name="SettingsDock" xml:space="preserve">
     <value>Расположение</value>
     <comment>Dock settings label</comment>

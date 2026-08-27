@@ -1211,7 +1211,16 @@ namespace Pulsebar.Framework {
                 return ResourceManager.GetString("SettingsDateFormatTooltip", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Display.
+        /// </summary>
+        public static string SettingsDisplayTab {
+            get {
+                return ResourceManager.GetString("SettingsDisplayTab", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Dock.
         /// </summary>

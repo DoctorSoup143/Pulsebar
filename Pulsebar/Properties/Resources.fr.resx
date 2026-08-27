@@ -613,6 +613,10 @@
     <value>Format de la date sous l'heure.</value>
     <comment>Settings date format tooltip</comment>
   </data>
+  <data name="SettingsDisplayTab" xml:space="preserve">
+    <value>Affichage</value>
+    <comment>Title of the settings display tab</comment>
+  </data>
   <data name="SettingsDock" xml:space="preserve">
     <value>Ancrage</value>
     <comment>Dock settings label</comment>
