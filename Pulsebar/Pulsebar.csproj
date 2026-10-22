@@ -10,7 +10,7 @@
 		<StartupObject>Pulsebar.App</StartupObject>
 		<ApplicationManifest>Properties\app.manifest</ApplicationManifest>
 		<!-- Default for local builds; the release workflow passes -p:Version from the tag. -->
-		<Version>1.0.3</Version>
+		<Version>1.0.4</Version>
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<!-- Only the version attributes are generated; the rest live in Properties\AssemblyInfo.cs. -->
