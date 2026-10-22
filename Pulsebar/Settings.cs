@@ -21,10 +21,15 @@ namespace Pulsebar.Framework
                 Directory.CreateDirectory(Paths.LocalApp);
             }
 
-            using (StreamWriter _writer = File.CreateText(Paths.SettingsFile))
+            // Write to a temp file and swap it in, so a crash mid-write can't leave a truncated settings file.
+            string _temp = Paths.SettingsFile + ".tmp";
+
+            using (StreamWriter _writer = File.CreateText(_temp))
             {
                 new JsonSerializer() { Formatting = Formatting.Indented }.Serialize(_writer, this);
             }
+
+            File.Move(_temp, Paths.SettingsFile, true);
         }
 
         public void Reload()
@@ -38,13 +43,70 @@ namespace Pulsebar.Framework
 
             if (File.Exists(Paths.SettingsFile))
             {
-                using (StreamReader _reader = File.OpenText(Paths.SettingsFile))
+                try
                 {
-                    _return = (Settings)new JsonSerializer().Deserialize(_reader, typeof(Settings));
+                    using (StreamReader _reader = File.OpenText(Paths.SettingsFile))
+                    {
+                        _return = (Settings)new JsonSerializer().Deserialize(_reader, typeof(Settings));
+                    }
+                }
+                catch (Exception)
+                {
+                    // A corrupt file shouldn't stop the app starting: keep a copy and fall back to defaults.
+                    try
+                    {
+                        File.Copy(Paths.SettingsFile, Paths.SettingsFile + ".bad", true);
+                    }
+                    catch { }
+
+                    _return = null;
                 }
             }
 
-            return _return ?? new Settings();
+            _return = _return ?? new Settings();
+            _return.Sanitize();
+
+            return _return;
+        }
+
+        // Resets values that would crash the app if a hand-edited file set them.
+        private void Sanitize()
+        {
+            if (_pollingInterval < 100)
+            {
+                _pollingInterval = 1000;
+            }
+
+            if (_fontSetting == null)
+            {
+                _fontSetting = FontSetting.x14;
+            }
+
+            if (_dateSetting == null)
+            {
+                _dateSetting = DateSetting.Short;
+            }
+
+            if (_hotkeys == null)
+            {
+                _hotkeys = new Hotkey[0];
+            }
+
+            if (string.IsNullOrEmpty(_culture))
+            {
+                _culture = Utilities.Culture.DEFAULT;
+            }
+            else if (!string.Equals(_culture, Utilities.Culture.DEFAULT, StringComparison.Ordinal))
+            {
+                try
+                {
+                    new CultureInfo(_culture);
+                }
+                catch (CultureNotFoundException)
+                {
+                    _culture = Utilities.Culture.DEFAULT;
+                }
+            }
         }
 
         public void NotifyPropertyChanged(string propertyName)

@@ -90,6 +90,8 @@ namespace Pulsebar.Models
 
 				_data.Add(_metric, _records);
 
+				// SetupPlot runs on every selection change, so drop any existing subscription first.
+				_metric.PropertyChanged -= Metric_PropertyChanged;
 				_metric.PropertyChanged += Metric_PropertyChanged;
 
 				_model.Series.Add(
@@ -196,6 +198,9 @@ namespace Pulsebar.Models
 				}
 
 				_mData.Add(new MetricRecord(_metric.nValue, _now));
+
+				// PlotModel series don't observe ItemsSource changes; redraw explicitly.
+				_model.InvalidatePlot(true);
 			}
 			catch
 			{

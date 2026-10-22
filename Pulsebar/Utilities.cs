@@ -114,25 +114,35 @@ namespace Pulsebar.Utilities
 
     public static class Startup
     {        
+        // Called during startup, so Task Scheduler failures (e.g. the service is
+        // unavailable) must not escape: report "missing" and let EnableStartupTask log it.
         public static bool StartupTaskExists()
         {
-            using (TaskService _taskService = new TaskService())
+            try
             {
-                Task _task = _taskService.FindTask(Constants.Generic.TASKNAME);
-
-                if (_task == null)
+                using (TaskService _taskService = new TaskService())
                 {
-                    return false;
+                    Task _task = _taskService.FindTask(Constants.Generic.TASKNAME);
+
+                    if (_task == null)
+                    {
+                        return false;
+                    }
+
+                    ExecAction _action = _task.Definition.Actions.OfType<ExecAction>().FirstOrDefault();
+
+                    if (_action == null || !string.Equals(_action.Path, CurrentExePath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+
+                    return true;
                 }
-
-                ExecAction _action = _task.Definition.Actions.OfType<ExecAction>().FirstOrDefault();
-
-                if (_action == null || _action.Path != CurrentExePath)
-                {
-                    return false;
-                }
-
-                return true;
+            }
+            catch (Exception e)
+            {
+                LogError(e);
+                return false;
             }
         }
 
@@ -163,20 +173,36 @@ namespace Pulsebar.Utilities
             }
             catch (Exception e)
             {
+                LogError(e);
+            }
+        }
+
+        public static void DisableStartupTask()
+        {
+            try
+            {
+                using (TaskService _taskService = new TaskService())
+                {
+                    _taskService.RootFolder.DeleteTask(Constants.Generic.TASKNAME, false);
+                }
+            }
+            catch (Exception e)
+            {
+                LogError(e);
+            }
+        }
+
+        private static void LogError(Exception e)
+        {
+            try
+            {
                 using (EventLog _log = new EventLog("Application"))
                 {
                     _log.Source = Resources.AppName;
                     _log.WriteEntry(e.ToString(), EventLogEntryType.Error, 100, 1);
                 }
             }
-        }
-
-        public static void DisableStartupTask()
-        {
-            using (TaskService _taskService = new TaskService())
-            {
-                _taskService.RootFolder.DeleteTask(Constants.Generic.TASKNAME, false);
-            }
+            catch { }
         }
     }
 

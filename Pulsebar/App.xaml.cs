@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using Hardcodet.Wpf.TaskbarNotification;
 using Pulsebar.Monitoring;
 using Pulsebar.Utilities;
@@ -23,9 +24,24 @@ namespace Pulsebar
 		{
 			base.OnStartup(e);
 
+			// SINGLE INSTANCE
+			// The startup task, the installer's launch step and a manual launch can all race;
+			// a second copy would register a second sidebar and appbar, so it just exits.
+			_instanceMutex = new System.Threading.Mutex(true, @"Local\Pulsebar.SingleInstance", out bool _createdNew);
+
+			if (!_createdNew)
+			{
+				_instanceMutex.Dispose();
+				_instanceMutex = null;
+
+				Shutdown();
+				return;
+			}
+
 			// ERROR HANDLING
 #if !DEBUG
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(AppDomain_Error);
+            DispatcherUnhandledException += App_DispatcherUnhandledException;
 #endif
 
 			// LANGUAGE
@@ -63,7 +79,16 @@ namespace Pulsebar
 
 		protected override void OnExit(ExitEventArgs e)
 		{
-			TrayIcon.Dispose();
+			if (TrayIcon != null)
+			{
+				TrayIcon.Dispose();
+			}
+
+			if (_instanceMutex != null)
+			{
+				_instanceMutex.ReleaseMutex();
+				_instanceMutex.Dispose();
+			}
 
 			base.OnExit(e);
 		}
@@ -114,7 +139,8 @@ namespace Pulsebar
 
 			Sidebar _sidebar = Sidebar;
 
-			if (_sidebar == null)
+			// SettingsModel needs the live hardware list, which only exists once the sidebar is Ready.
+			if (_sidebar == null || !_sidebar.Ready)
 			{
 				return;
 			}
@@ -251,6 +277,43 @@ namespace Pulsebar
 			MessageBox.Show(ex.ToString(), Framework.Resources.ErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
 		}
 
+		// UI-thread exceptions: report, release the reserved screen space, and exit cleanly
+		// instead of letting the process die with the appbar still registered.
+		private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+		{
+			e.Handled = true;
+
+			// The MessageBox runs a nested message loop, so a timer that keeps throwing would
+			// otherwise stack up error boxes; report only the first one.
+			if (_handlingError)
+			{
+				return;
+			}
+
+			_handlingError = true;
+
+			// Stop polling and release the screen space before blocking on the MessageBox.
+			try
+			{
+				Sidebar _sidebar = Sidebar;
+
+				if (_sidebar != null)
+				{
+					if (_sidebar.Model != null)
+					{
+						_sidebar.Model.Pause();
+					}
+
+					_sidebar.ClearAppBar();
+				}
+			}
+			catch { }
+
+			MessageBox.Show(e.Exception.ToString(), Framework.Resources.ErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+
+			Shutdown();
+		}
+
 		public Sidebar Sidebar
 		{
 			get
@@ -280,5 +343,9 @@ namespace Pulsebar
 		internal static bool _reloading { get; set; } = false;
 
 		private static string _updateUrl { get; set; }
+
+		private static System.Threading.Mutex _instanceMutex { get; set; }
+
+		private static bool _handlingError { get; set; } = false;
 	}
 }
