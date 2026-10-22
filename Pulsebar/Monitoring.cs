@@ -1898,8 +1898,17 @@ namespace Pulsebar.Monitoring
 		public MonitorConfig Clone()
 		{
 			MonitorConfig _clone = (MonitorConfig)MemberwiseClone();
+
+			// MemberwiseClone copies the event's subscriber list too; a clone must start with none.
+			_clone.PropertyChanged = null;
+
 			_clone.Hardware = _clone.Hardware.Select(h => h.Clone()).ToArray();
 			_clone.Params = _clone.Params.Select(p => p.Clone()).ToArray();
+
+			if (_clone.Metrics != null)
+			{
+				_clone.Metrics = _clone.Metrics.Select(m => m.Clone()).ToArray();
+			}
 
 			if (_clone.HardwareOC != null)
 			{
@@ -2236,7 +2245,10 @@ namespace Pulsebar.Monitoring
 
 		public HardwareConfig Clone()
 		{
-			return (HardwareConfig)MemberwiseClone();
+			HardwareConfig _clone = (HardwareConfig)MemberwiseClone();
+			_clone.PropertyChanged = null;
+
+			return _clone;
 		}
 
 		object ICloneable.Clone()
@@ -2351,9 +2363,12 @@ namespace Pulsebar.Monitoring
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
-		public ConfigParam Clone()
+		public MetricConfig Clone()
 		{
-			return (ConfigParam)MemberwiseClone();
+			MetricConfig _clone = (MetricConfig)MemberwiseClone();
+			_clone.PropertyChanged = null;
+
+			return _clone;
 		}
 
 		object ICloneable.Clone()
@@ -2461,7 +2476,10 @@ namespace Pulsebar.Monitoring
 
 		public ConfigParam Clone()
 		{
-			return (ConfigParam)MemberwiseClone();
+			ConfigParam _clone = (ConfigParam)MemberwiseClone();
+			_clone.PropertyChanged = null;
+
+			return _clone;
 		}
 
 		object ICloneable.Clone()
