@@ -143,17 +143,21 @@ Match the surrounding code:
 
 ## Known issues (audit 2026-10-22)
 
-**High**
-- **No single-instance guard** (no Mutex). Startup task + installer launch + manual launch can create duplicate sidebars and appbars.
-- **The uninstaller leaves things behind.** It doesn't remove the `PulsebarStartup` scheduled task (which then points at a deleted exe) or `%LOCALAPPDATA%\Pulsebar`.
-- **Opening Settings before the sidebar is `Ready` → NRE.** `App.OpenSettings` doesn't check, and `SettingsModel` skips building `HardwareOC`.
-- **A corrupt `settings.json` crashes startup** (no try/catch in `Settings.Load`). `Save` isn't atomic.
+**Bugs:** the full ranked list (9 High, 19 Medium, ~20 Low, each with file:line and a failure scenario) is in [`sdd/bug-audit-report.md`](sdd/bug-audit-report.md). Check it before touching an area, and update its "Fix status" section when you fix something.
+- **High H1–H9 were fixed for 1.0.4** (branch `fix-high-bugs`). They haven't been run in the app yet; the report lists the manual checks.
+- Patterns those fixes introduced, which you should keep:
+  - `SidebarModel` is disposed only on the UI thread.
+  - `Model` can be null during a rebuild, so null-check it.
+  - Config `Clone()` must clear `PropertyChanged`.
+  - Appbar binds are cancelled through `_appBarVersion`; don't reintroduce `ContinueWith(async …)`.
+  - `Settings.Save` is temp-file + swap.
+- **Most visible open Medium bugs:**
+  - hotkeys (a bare key with no modifier can be bound; failures are silent; cancelling a rebind clears the hotkey);
+  - CPU Fan/RAM Voltage never shown (LHM board sensors live in SuperIO `SubHardware`);
+  - Virtual Memory shown as a second RAM block;
+  - Save forgets disconnected hardware.
 
-**Medium**
-- `MetricConfig.Clone()` casts to `ConfigParam` and would throw (not called today). `MonitorConfig.Clone` shallow-copies `Metrics`.
-- Divide-by-zero risks: drive total on a 100%-full drive, and VRAM load when total is 0.
-- Intel GPUs (`GpuIntel`) are never enumerated.
-- `Windows.cs` async misuse: `Task.Delay().ContinueWith(async …)` and an un-awaited `SetAppBar()`. Docking may finish after `Show()`.
+**UI/polish (not in the bug report)**
 - `SettingsSlider` lacks `IsSnapToTickEnabled`, so its paired textboxes show long doubles.
 - `SettingsModel` notifies the wrong names (`"FontSize"`, `"FontSizeItems"`).
 - `FlatStyle.xaml`:
@@ -162,6 +166,7 @@ Match the surrounding code:
   - Some old-palette greys remain.
 - The Graph and Setup windows are only partly themed (black text on dark).
 - `Culture.Languages` omits `ar` and `tr` even though their resx files exist.
+- The uninstaller leaves the `PulsebarStartup` task and `%LOCALAPPDATA%\Pulsebar` behind.
 - The da/de/ja/nl translations are ~30% complete.
 - Hard-coded English: "Hardware", "Metrics", "Options" in `Settings.xaml`, plus "No Value" and "None".
 

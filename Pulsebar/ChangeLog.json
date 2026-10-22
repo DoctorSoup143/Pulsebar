@@ -1,5 +1,16 @@
 [
 	{
+		"Version": "1.0.4",
+		"Changes": [
+			"Fixed the Graph window never drawing any data.",
+			"Fixed crashes when showing or hiding the sidebar from the tray during startup or right after applying settings.",
+			"Fixed Cancel in Settings not undoing metric changes, and the Settings window reporting unsaved changes after Apply.",
+			"A damaged settings file no longer stops Pulsebar from starting; it is backed up and defaults are used.",
+			"Only one copy of Pulsebar can run at a time.",
+			"Fixed quickly showing and hiding the sidebar leaving an empty reserved strip on screen."
+		]
+	},
+	{
 		"Version": "1.0.3",
 		"Changes": [
 			"Fixed Pulsebar reporting its version as 1.0.0, which made the update checker announce an update even on the latest release and hid the changelog for new versions."
