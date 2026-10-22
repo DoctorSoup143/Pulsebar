@@ -1,5 +1,12 @@
 [
 	{
+		"Version": "1.0.5",
+		"Changes": [
+			"Updated the Extended WPF Toolkit controls (color pickers, graph metric picker) to 5.1.2 for its bug fixes.",
+			"Removed unused libraries, making Pulsebar about 20 MB smaller and clearing a known vulnerability in one of them."
+		]
+	},
+	{
 		"Version": "1.0.4",
 		"Changes": [
 			"Fixed the Graph window never drawing any data.",
