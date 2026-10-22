@@ -16,7 +16,7 @@ namespace Pulsebar.Models
 
             Title = string.Format("{0} v{1}", Resources.ChangeLogTitle, _vstring);
 
-            ChangeLogEntry _log = ChangeLogEntry.Load().FirstOrDefault(e => string.Equals(e.Version, _vstring, StringComparison.OrdinalIgnoreCase));
+            ChangeLogEntry _log = ChangeLogEntry.Load().FirstOrDefault(e => e != null && string.Equals(e.Version, _vstring, StringComparison.OrdinalIgnoreCase));
 
             if (_log != null)
             {
@@ -82,9 +82,17 @@ namespace Pulsebar.Models
 
             if (File.Exists(_file))
             {
-                using (StreamReader _reader = File.OpenText(_file))
+                // Runs during startup; a malformed file just means an empty changelog, not a crash.
+                try
                 {
-                    _return = (ChangeLogEntry[])new JsonSerializer().Deserialize(_reader, typeof(ChangeLogEntry[]));
+                    using (StreamReader _reader = File.OpenText(_file))
+                    {
+                        _return = (ChangeLogEntry[])new JsonSerializer().Deserialize(_reader, typeof(ChangeLogEntry[]));
+                    }
+                }
+                catch (Exception)
+                {
+                    _return = null;
                 }
             }
 

@@ -24,6 +24,20 @@ namespace Pulsebar
 		{
 			base.OnStartup(e);
 
+			// SINGLE INSTANCE
+			// The startup task, the installer's launch step and a manual launch can all race;
+			// a second copy would register a second sidebar and appbar, so it just exits.
+			_instanceMutex = new System.Threading.Mutex(true, @"Local\Pulsebar.SingleInstance", out bool _createdNew);
+
+			if (!_createdNew)
+			{
+				_instanceMutex.Dispose();
+				_instanceMutex = null;
+
+				Shutdown();
+				return;
+			}
+
 			// ERROR HANDLING
 #if !DEBUG
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(AppDomain_Error);
@@ -65,7 +79,16 @@ namespace Pulsebar
 
 		protected override void OnExit(ExitEventArgs e)
 		{
-			TrayIcon.Dispose();
+			if (TrayIcon != null)
+			{
+				TrayIcon.Dispose();
+			}
+
+			if (_instanceMutex != null)
+			{
+				_instanceMutex.ReleaseMutex();
+				_instanceMutex.Dispose();
+			}
 
 			base.OnExit(e);
 		}
@@ -305,5 +328,7 @@ namespace Pulsebar
 		internal static bool _reloading { get; set; } = false;
 
 		private static string _updateUrl { get; set; }
+
+		private static System.Threading.Mutex _instanceMutex { get; set; }
 	}
 }
