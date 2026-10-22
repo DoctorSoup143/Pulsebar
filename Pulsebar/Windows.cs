@@ -1365,21 +1365,32 @@ namespace Pulsebar.Windows
             }
         }
 
+        // Every SetAppBar/ClearAppBar bumps _appBarVersion. The delayed steps below check it
+        // after each wait, so a bind queued before a hide, close or newer reposition gives up
+        // instead of registering an appbar for a hidden window or touching a closed one.
         public async Task SetAppBar()
         {
             ClearAppBar();
 
-            await Task.Delay(100).ContinueWith(async (_) =>
-            {
-                await Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, (Action)(async () =>
-                {
-                    await BindAppBar();
-                }));
-            });
+            int _version = _appBarVersion;
 
+            await Task.Delay(100);
+            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+
+            if (!IsCurrentAppBar(_version))
+            {
+                return;
+            }
+
+            await BindAppBar(_version);
         }
-        
-        private async Task BindAppBar()
+
+        private bool IsCurrentAppBar(int version)
+        {
+            return version == _appBarVersion && HwndSource != null;
+        }
+
+        private async Task BindAppBar(int version)
         {
             Monitor.GetWorkArea(this, out int screen, out DockEdge edge, out WorkArea initPos, out WorkArea windowWA, out WorkArea appbarWA);
 
@@ -1416,28 +1427,49 @@ namespace Pulsebar.Windows
 
             AppBarWidth = appbarWA.Width;
 
-            await Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, (Action)(() =>
-            {
-                Move(windowWA);
-            }));
+            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
 
-            await Task.Delay(500).ContinueWith(async (_) =>
+            if (!IsCurrentAppBar(version))
             {
-                await Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, (Action)(() =>
-                {
-                    HwndSource.AddHook(AppBarHook);
-                }));
-            });
+                return;
+            }
+
+            Move(windowWA);
+
+            // Hook appbar notifications only after our own SETPOS has settled, so we don't react to it.
+            // Not awaited: callers shouldn't wait the extra half second.
+            _ = HookAppBarAfterDelay(version);
+        }
+
+        private async Task HookAppBarAfterDelay(int version)
+        {
+            await Task.Delay(500);
+            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+
+            if (!IsCurrentAppBar(version) || !IsAppBar)
+            {
+                return;
+            }
+
+            HwndSource.AddHook(AppBarHook);
         }
 
         public void ClearAppBar()
         {
+            // Invalidate any bind still waiting to run, even if nothing is registered yet.
+            _appBarVersion++;
+
             if (!IsAppBar)
             {
                 return;
             }
 
-            HwndSource.RemoveHook(AppBarHook);
+            HwndSource _source = HwndSource;
+
+            if (_source != null)
+            {
+                _source.RemoveHook(AppBarHook);
+            }
 
             APPBARDATA _data = NewData();
 
@@ -1448,9 +1480,17 @@ namespace Pulsebar.Windows
 
         public virtual async Task AppBarShow()
         {
+            int _request = ++_showHideRequest;
+
             if (Framework.Settings.Instance.UseAppBar)
             {
                 await SetAppBar();
+            }
+
+            // A hide (or another show) arrived while docking; it wins.
+            if (_request != _showHideRequest || HwndSource == null)
+            {
+                return;
             }
 
             Show();
@@ -1458,12 +1498,12 @@ namespace Pulsebar.Windows
 
         public virtual void AppBarHide()
         {
+            _showHideRequest++;
+
             Hide();
 
-            if (IsAppBar)
-            {
-                ClearAppBar();
-            }
+            // Always clear: it also cancels a bind that AppBarShow queued but hasn't run yet.
+            ClearAppBar();
         }
 
         private APPBARDATA NewData()
@@ -1527,6 +1567,10 @@ namespace Pulsebar.Windows
         private bool _wasTopMost { get; set; } = false;
 
         private int _callbackID { get; set; }
+
+        private int _appBarVersion { get; set; } = 0;
+
+        private int _showHideRequest { get; set; } = 0;
 
         private CancellationTokenSource _cancelReposition { get; set; }
     }

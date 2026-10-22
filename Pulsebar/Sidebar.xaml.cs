@@ -83,8 +83,9 @@ namespace Pulsebar
         {
             await base.AppBarShow();
 
-            // Model is null while BindModel rebuilds it; ModelReady starts the new one.
-            if (Model != null)
+            // Model is null while BindModel rebuilds it (ModelReady starts the new one),
+            // and the show may have been superseded by a hide while docking.
+            if (Model != null && Visibility == Visibility.Visible)
             {
                 Model.Resume();
             }
