@@ -17,7 +17,7 @@ dotnet build Pulsebar/Pulsebar.csproj -c Debug
 
 - Framework-dependent build output goes to `Pulsebar/bin/<Config>/net10.0-windows/`.
 - There is **no test project**. Verification has been "builds with 0 errors" plus a manual run.
-- ~141 CA1416 warnings, the NU1902 (SharpCompress) warning and the CS4014 warnings already existed. Don't count them as regressions.
+- The CA1416 and CS4014 warnings already existed. Don't count them as regressions. There should be no NuGet (NU*) warnings.
 - The app manifest is `requireAdministrator`, so you can't launch it from a sandbox (nothing can answer UAC). Ask the user to run it.
 - If an elevated `Pulsebar.exe` is still running, the build fails with MSB3027/MSB3021 (file locked). `Stop-Process` can't kill it. Use this instead:
   `Get-Process -Name Pulsebar -ErrorAction SilentlyContinue | ForEach-Object { (Get-WmiObject Win32_Process -Filter "ProcessId=$($_.Id)").Terminate() }`
@@ -39,6 +39,21 @@ dotnet build Pulsebar/Pulsebar.csproj -c Debug
 ## Layout
 
 There is a single project, `Pulsebar/Pulsebar.csproj` (net10.0-windows, WPF, `Nullable` and `ImplicitUsings` **disabled**, so write explicit `using`s). Namespaces are `Pulsebar`, `.Framework`, `.Models`, `.Monitoring`, `.Style`, `.Windows`.
+
+NuGet dependencies, all of them in use:
+
+| Package | Version | Used for |
+|---|---|---|
+| LibreHardwareMonitorLib | 0.9.6 | Sensors |
+| Extended.Wpf.Toolkit | 5.1.2 | Colour pickers, Graph's CheckComboBox |
+| gong-wpf-dragdrop | — | Monitors tab reorder |
+| Hardcodet.NotifyIcon.Wpf | — | Tray |
+| TaskScheduler | — | Startup task |
+| Newtonsoft.Json | — | Settings and update-check JSON |
+| OxyPlot.Wpf | — | Graph |
+
+- The Squirrel-era leftovers (Splat, System.Reactive, SharpCompress, Mono.Cecil) and the unused WPF-UI were removed in 1.0.5.
+- Extended.Wpf.Toolkit is under Xceed's non-commercial Community License, which is worth keeping in mind for a GPLv3 project.
 
 | File | Role |
 |---|---|
@@ -175,7 +190,6 @@ Match the surrounding code:
   - `.gitmodules` declares a LibreHardwareMonitor submodule that doesn't exist; LHM comes from NuGet `LibreHardwareMonitorLib` 0.9.6.
   - `App.config` still has .NET Framework 4.7.2 runtime/binding-redirect cruft. Its `WikiURL` points at the upstream wiki.
   - `FolderProfile.pubxml` has a personal absolute `PublishDir`.
-- Unused packages (no code references): WPF-UI, Splat ×4, System.Reactive, Mono.Cecil, SharpCompress.
 - Dead code:
   - Styles: `PanelSheen`; the `App.xaml` `MonitorGrid*`/`MonitorHardware*`/`SettingButtons` family.
   - `Paths.Install`/`Exe`/`TaskBar`.
