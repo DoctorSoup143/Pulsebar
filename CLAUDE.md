@@ -7,7 +7,7 @@ Guidance for Claude Code working in this repo. Kept in sync with the Obsidian no
 Pulsebar is a Windows-only WPF sidebar (AppBar docked to a screen edge) showing live CPU/GPU/RAM/drive/network stats. It is a GPLv3 fork of [Sidebar Diagnostics](https://github.com/ArcadeRenegade/SidebarDiagnostics) by ArcadeRenegade, moved to .NET 10 with a dark navy/teal reskin, a redesigned Settings window and a card-based Monitors tab.
 
 - GitHub: `DoctorSoup143/Pulsebar` (public). Local checkout: `E:\Github-Projects\Pulsebar`.
-- Tags `v1.0.0`–`v1.0.4` exist. `v1.0.4` is the latest release.
+- Tags `v1.0.0`–`v1.0.5` exist. `v1.0.5` is the latest release.
 
 ## Build, run, release
 
@@ -32,7 +32,7 @@ dotnet build Pulsebar/Pulsebar.csproj -c Debug
 - **The version comes from the tag.** The workflow strips the `v` and passes `-p:Version=X.Y.Z`. The SDK generates *only* `AssemblyVersion`/`AssemblyFileVersion`; the other assembly attributes stay hand-written in `Properties/AssemblyInfo.cs`, and the csproj disables generating them. Don't re-add version attributes to AssemblyInfo.cs, which would cause CS0579 duplicates.
 - `<Version>` in `Pulsebar.csproj` is only the default for local builds. Bump it to the next release number after tagging.
 - **Before tagging, add a `ChangeLog.json` entry for that version.** The workflow fails if it's missing. Both the update checker and the ChangeLog window use the assembly's `Version.ToString(3)`. (The `app.manifest` version is cosmetic.)
-- Releases v1.0.0–v1.0.2 shipped reporting `1.0.0.0`. v1.0.3 is the first release versioned from its tag. `<Version>` is now `1.0.5`.
+- Releases v1.0.0–v1.0.2 shipped reporting `1.0.0.0`. v1.0.3 is the first release versioned from its tag. `<Version>` is now `1.0.6`.
 - In a single-file publish `Assembly.Location` is empty (IL3000). Use `Environment.ProcessPath`; the startup task already does.
 - The installer's `[Run]` entry **must keep the `shellexec` flag**. Without it, launching the admin-manifested exe fails with ERROR_ELEVATION_REQUIRED (see `sdd/installer-elevation-debug-report.md`).
 
