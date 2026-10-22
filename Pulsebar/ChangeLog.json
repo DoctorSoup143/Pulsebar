@@ -1,5 +1,19 @@
 [
 	{
+		"Version": "1.0.3",
+		"Changes": [
+			"Fixed Pulsebar reporting its version as 1.0.0, which made the update checker announce an update even on the latest release and hid the changelog for new versions."
+		]
+	},
+	{
+		"Version": "1.0.2",
+		"Changes": [
+			"Fixed Run at Startup not launching Pulsebar after a reboot.",
+			"Fixed the changelog window showing the original project's version history.",
+			"Tightened the spacing above the sidebar clock."
+		]
+	},
+	{
 		"Version": "1.0.1",
 		"Changes": [
 			"Added a GitHub Releases update checker.",

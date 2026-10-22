@@ -9,10 +9,19 @@
 		<ApplicationIcon>Sidebar.ico</ApplicationIcon>
 		<StartupObject>Pulsebar.App</StartupObject>
 		<ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-		<ApplicationVersion>1.0.0.0</ApplicationVersion>
+		<!-- Default for local builds; the release workflow passes -p:Version from the tag. -->
+		<Version>1.0.3</Version>
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<!-- Only the version attributes are generated; the rest live in Properties\AssemblyInfo.cs. -->
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+		<GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+		<GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+		<GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
 		<PlatformTarget>AnyCPU</PlatformTarget>
 		<WarningLevel>4</WarningLevel>
 	</PropertyGroup>

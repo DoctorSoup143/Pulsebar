@@ -25,6 +25,20 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
+      # The tag (minus the leading "v") becomes the assembly version, which the
+      # update checker and the ChangeLog window both read at runtime. Fail early
+      # if ChangeLog.json has no entry for it, since that window would be empty.
+      - name: Determine version
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}" -replace '^v', ''
+          $entries = Get-Content Pulsebar/ChangeLog.json -Raw | ConvertFrom-Json
+          if (-not ($entries | Where-Object { $_.Version -eq $version })) {
+            Write-Error "Pulsebar/ChangeLog.json has no entry for version $version"
+            exit 1
+          }
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - name: Publish self-contained build
         run: >
           dotnet publish Pulsebar/Pulsebar.csproj
@@ -33,6 +47,7 @@ jobs:
           --self-contained true
           -p:PublishSingleFile=true
           -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:Version=${{ env.VERSION }}
           -o publish
 
       - name: Package release zip
@@ -44,8 +59,7 @@ jobs:
       - name: Build installer
         shell: pwsh
         run: |
-          $version = "${{ github.ref_name }}" -replace '^v', ''
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$version" installer\Pulsebar.iss
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$env:VERSION" installer\Pulsebar.iss
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
