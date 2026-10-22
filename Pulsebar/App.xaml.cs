@@ -283,18 +283,33 @@ namespace Pulsebar
 		{
 			e.Handled = true;
 
-			MessageBox.Show(e.Exception.ToString(), Framework.Resources.ErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+			// The MessageBox runs a nested message loop, so a timer that keeps throwing would
+			// otherwise stack up error boxes; report only the first one.
+			if (_handlingError)
+			{
+				return;
+			}
 
+			_handlingError = true;
+
+			// Stop polling and release the screen space before blocking on the MessageBox.
 			try
 			{
 				Sidebar _sidebar = Sidebar;
 
 				if (_sidebar != null)
 				{
+					if (_sidebar.Model != null)
+					{
+						_sidebar.Model.Pause();
+					}
+
 					_sidebar.ClearAppBar();
 				}
 			}
 			catch { }
+
+			MessageBox.Show(e.Exception.ToString(), Framework.Resources.ErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
 
 			Shutdown();
 		}
@@ -330,5 +345,7 @@ namespace Pulsebar
 		private static string _updateUrl { get; set; }
 
 		private static System.Threading.Mutex _instanceMutex { get; set; }
+
+		private static bool _handlingError { get; set; } = false;
 	}
 }

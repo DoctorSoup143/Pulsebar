@@ -1482,10 +1482,9 @@ namespace Pulsebar.Windows
         {
             int _request = ++_showHideRequest;
 
-            if (Framework.Settings.Instance.UseAppBar)
-            {
-                await SetAppBar();
-            }
+            // Always re-dock (as BindPosition does): a hide can cancel an in-flight reposition,
+            // and SetAppBar is also what moves the window to its current size/edge.
+            await SetAppBar();
 
             // A hide (or another show) arrived while docking; it wins.
             if (_request != _showHideRequest || HwndSource == null)

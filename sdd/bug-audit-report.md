@@ -22,6 +22,14 @@ All **High items (H1–H9) were fixed** on branch `fix-high-bugs`, one commit pe
 - Double-tap the Toggle hotkey: no empty reserved strip.
 - CycleEdge then Reload quickly: no crash.
 
+An independent review of the branch diff confirmed the fix paths: first bind at startup, the version counter never cancelling its own bind, hidden start, the mutex, and nothing relying on shared clones. It raised four points, two of which were fixed in a follow-up commit:
+- The new error handler could stack MessageBoxes while timers kept throwing. It now has a re-entry guard and pauses the model and clears the appbar before showing the box.
+- With "reserve space" off, a hide could cancel an in-flight reposition. `AppBarShow` now always re-docks, like the startup path.
+
+Still open from the review:
+- Reposition/Reset while the sidebar is already hidden (e.g. the ReserveSpace hotkey, or Apply while hidden) registers an appbar for the hidden window. This predates the branch; the fix is a "wanted visible" flag that `SetAppBar` respects.
+- `_old.Dispose()` now runs on the UI thread, so closing LHM briefly blocks the UI on each Apply. This is a deliberate trade-off against the timer race.
+
 Medium and Low items not mentioned above are still open.
 
 ## Method
