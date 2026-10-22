@@ -108,6 +108,14 @@ namespace Pulsebar.Models
                         );
                 }
             }
+            else
+            {
+                // No live hardware list yet: show the saved entries so Save doesn't wipe them.
+                foreach (MonitorConfig _record in _config)
+                {
+                    _record.HardwareOC = new ObservableCollection<HardwareConfig>(_record.Hardware.OrderByDescending(h => h.Order).ThenBy(h => h.Name));
+                }
+            }
 
             MonitorConfig = _config;
 

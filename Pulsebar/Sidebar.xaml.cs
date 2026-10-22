@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 using Pulsebar.Windows;
 using Pulsebar.Models;
 
@@ -84,14 +83,21 @@ namespace Pulsebar
         {
             await base.AppBarShow();
 
-            Model.Resume();
+            // Model is null while BindModel rebuilds it; ModelReady starts the new one.
+            if (Model != null)
+            {
+                Model.Resume();
+            }
         }
 
         public override void AppBarHide()
         {
             base.AppBarHide();
 
-            Model.Pause();
+            if (Model != null)
+            {
+                Model.Pause();
+            }
         }
 
         private async Task Initialize()
@@ -169,24 +175,37 @@ namespace Pulsebar
         
         private async Task BindModel()
         {
-            await Task.Run(async () =>
+            // Dispose the old model here on the UI thread: its timers tick on this thread,
+            // so none can be mid-update while the hardware library is being closed.
+            if (Model != null)
             {
-                if (Model != null)
-                {
-                    Model.Dispose();
-                    Model = null;
-                }
+                SidebarModel _old = Model;
+                Model = null;
+                _old.Dispose();
+            }
 
-                await Dispatcher.BeginInvoke(DispatcherPriority.Normal, new ModelReadyHandler(ModelReady), new SidebarModel());
-            });
+            // Building the model initializes the hardware library, which is slow; keep it off the UI thread.
+            SidebarModel _model = await Task.Run(() => new SidebarModel());
+
+            if (_closing)
+            {
+                _model.Dispose();
+                return;
+            }
+
+            ModelReady(_model);
         }
-
-        private delegate void ModelReadyHandler(SidebarModel model);
 
         private void ModelReady(SidebarModel model)
         {
             DataContext = Model = model;
             model.Start();
+
+            // The sidebar may have been hidden while the model was rebuilding.
+            if (Visibility != Visibility.Visible)
+            {
+                model.Pause();
+            }
 
             Ready = true;
 
@@ -255,6 +274,8 @@ namespace Pulsebar
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            _closing = true;
+
             Ready = false;
 
             DataContext = null;
@@ -310,5 +331,7 @@ namespace Pulsebar
         private bool _openSettings { get; set; } = false;
 
         private bool _initiallyHidden { get; set; } = false;
+
+        private bool _closing { get; set; } = false;
     }
 }

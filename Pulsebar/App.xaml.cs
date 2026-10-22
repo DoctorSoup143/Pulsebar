@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using Hardcodet.Wpf.TaskbarNotification;
 using Pulsebar.Monitoring;
 using Pulsebar.Utilities;
@@ -26,6 +27,7 @@ namespace Pulsebar
 			// ERROR HANDLING
 #if !DEBUG
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(AppDomain_Error);
+            DispatcherUnhandledException += App_DispatcherUnhandledException;
 #endif
 
 			// LANGUAGE
@@ -114,7 +116,8 @@ namespace Pulsebar
 
 			Sidebar _sidebar = Sidebar;
 
-			if (_sidebar == null)
+			// SettingsModel needs the live hardware list, which only exists once the sidebar is Ready.
+			if (_sidebar == null || !_sidebar.Ready)
 			{
 				return;
 			}
@@ -249,6 +252,28 @@ namespace Pulsebar
 			Exception ex = (Exception)e.ExceptionObject;
 
 			MessageBox.Show(ex.ToString(), Framework.Resources.ErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+		}
+
+		// UI-thread exceptions: report, release the reserved screen space, and exit cleanly
+		// instead of letting the process die with the appbar still registered.
+		private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+		{
+			e.Handled = true;
+
+			MessageBox.Show(e.Exception.ToString(), Framework.Resources.ErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+
+			try
+			{
+				Sidebar _sidebar = Sidebar;
+
+				if (_sidebar != null)
+				{
+					_sidebar.ClearAppBar();
+				}
+			}
+			catch { }
+
+			Shutdown();
 		}
 
 		public Sidebar Sidebar
